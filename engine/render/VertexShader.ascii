@@ -1,0 +1,21 @@
+#version 430
+layout(location=0) in vec4 pos;
+layout(location=1) in vec4 color;
+layout(location=2) in vec2 uvIn;
+layout(location=3) in vec4 normalIn;
+
+out vec4 colorOut;
+out vec2 uvOut;
+out vec4 normalOut;
+out vec4 fragPos;
+
+uniform mat4 matrix;
+uniform mat4 modelMatrix;
+void main()
+{
+	gl_Position = matrix * pos;
+	colorOut = color;
+    uvOut = uvIn;
+    normalOut = transpose(inverse(modelMatrix)) * normalIn;
+    fragPos = vec4(modelMatrix * pos);
+}

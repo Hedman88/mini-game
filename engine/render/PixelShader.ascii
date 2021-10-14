@@ -1,0 +1,33 @@
+#version 430
+in vec4 colorOut;
+in vec2 uvOut;
+in vec4 normalOut;
+in vec4 fragPos;
+
+out vec4 Color;
+
+uniform sampler2D image;
+uniform vec4 lightPos;
+uniform vec4 viewPos;
+uniform vec4 lightColor;
+uniform float lightIntensity;
+
+void main()
+{
+    float ambientStrength = 0.1;
+    vec4 ambient = ambientStrength * lightColor;
+
+    vec4 norm = normalize(normalOut);
+    vec4 lightDir = normalize(lightPos - fragPos);
+    float diff = max(dot(norm, lightDir), 0.0);
+    vec4 diffuse = (diff * lightColor) * lightIntensity;
+
+    float specularStrength = 0.5 * lightIntensity;
+    vec4 viewDir = normalize(viewPos - fragPos);
+    vec4 reflectDir = reflect(-lightDir, norm);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+    vec4 specular = specularStrength * spec * lightColor;
+    
+    vec4 lightResult = (ambient + diffuse + specular);
+	Color = lightResult * texture(image, uvOut);
+}

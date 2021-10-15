@@ -221,7 +221,7 @@ bool ImGui_ImplGlfwGL3_CreateDeviceObjects()
     glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &last_vertex_array);
 
     const GLchar *vertex_shader =
-        "#version 150\n"
+        "#version 300 es\n"
         "uniform mat4 ProjMtx;\n"
         "in vec2 Position;\n"
         "in vec2 UV;\n"
@@ -236,7 +236,7 @@ bool ImGui_ImplGlfwGL3_CreateDeviceObjects()
         "}\n";
 
     const GLchar* fragment_shader =
-        "#version 150\n"
+        "#version 300 es\n"
         "uniform sampler2D Texture;\n"
         "in vec2 Frag_UV;\n"
         "in vec4 Frag_Color;\n"

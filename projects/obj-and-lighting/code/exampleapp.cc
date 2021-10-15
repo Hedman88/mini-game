@@ -12,7 +12,7 @@
 #include "render/PointLightNode.h"
 #include "render/Camera.h"
 #include "core/mathLib.h"
-#include "stb_image.h"
+#include "render/stb_image.h"
 
 const GLchar* vs =
 "#version 430\n"

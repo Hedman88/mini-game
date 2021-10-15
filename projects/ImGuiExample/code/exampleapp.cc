@@ -99,11 +99,6 @@ ImGuiExampleApp::Open()
 		{
 			this->RenderUI();
 		});
-
-		this->window->SetNanoVGRender([this](NVGcontext * vg)
-		{
-			this->RenderNano(vg);
-		});
 		return true;
 	}
 	return false;
@@ -250,26 +245,4 @@ ImGuiExampleApp::CompileShaders()
 		delete[] buf;
 	}
 }
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-ImGuiExampleApp::RenderNano(NVGcontext * vg)
-{
-	
-	
-	nvgSave(vg);
-
-	nvgBeginPath(vg);
-	nvgCircle(vg,600, 100, 50);
-	NVGpaint paint;
-	paint = nvgLinearGradient(vg, 600, 100, 650, 150, nvgRGBA(255, 0, 0, 255), nvgRGBA(0, 255, 0, 255));
-	nvgFillPaint(vg, paint);
-	nvgFill(vg);
-	
-
-	nvgRestore(vg);
-}
-
 } // namespace Example

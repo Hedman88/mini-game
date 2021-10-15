@@ -12,7 +12,7 @@
 
 #include <stdint.h>
 #include <atomic>
-#include <xmmintrin.h>
+//#include <xmmintrin.h>
 #include <assert.h>
 
 typedef uint32_t	uint32;

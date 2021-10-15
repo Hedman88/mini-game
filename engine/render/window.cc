@@ -6,9 +6,7 @@
 #include "window.h"
 #include <imgui.h>
 #include "imgui_impl_glfw_gl3.h"
-#include <nanovg.h>
 #define NANOVG_GL3_IMPLEMENTATION 1
-#include "nanovg_gl.h"
 
 namespace Display
 {
@@ -65,7 +63,6 @@ int32 Window::WindowCount = 0;
 */
 Window::Window() :
 	window(nullptr),
-	vg(nullptr),
 	width(1024),
 	height(768),
 	title("gscept Lab Environment")
@@ -207,7 +204,9 @@ Window::Open()
 	glfwWindowHint(GLFW_GREEN_BITS, 8);
 	glfwWindowHint(GLFW_BLUE_BITS, 8);
 	glfwWindowHint(GLFW_SRGB_CAPABLE, GL_TRUE);
-	glfwWindowHint(GLFW_SAMPLES, 8);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+	glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
 
 	// open window
 	this->window = glfwCreateWindow(this->width, this->height, this->title.c_str(), nullptr, nullptr);
@@ -217,13 +216,18 @@ Window::Open()
 	{
 		GLenum res = glewInit();
 		assert(res == GLEW_OK);
-		if (!(GLEW_VERSION_4_0))
+		if (!GL_EXT_separate_shader_objects)
 		{
-			printf("[WARNING]: OpenGL 4.0+ is not supported on this hardware!\n");
-			glfwDestroyWindow(this->window);
-			this->window = nullptr;
+			printf("GPU does not support GL_EXT_separate_shader_objects!\n");
 			return false;
 		}
+		// if (!(GLEW_VERSION_4_0))
+		// {
+		// 	printf("[WARNING]: OpenGL 4.0+ is not supported on this hardware!\n");
+		// 	glfwDestroyWindow(this->window);
+		// 	this->window = nullptr;
+		// 	return false;
+		// }
 
 		// setup debug callback
 		glEnable(GL_DEBUG_OUTPUT);
@@ -234,11 +238,6 @@ Window::Open()
 
 		// setup stuff
 		glEnable(GL_FRAMEBUFFER_SRGB);
-		glEnable(GL_LINE_SMOOTH);
-		glEnable(GL_POLYGON_SMOOTH);
-		glEnable(GL_MULTISAMPLE);
-		glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-		glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
 
 		// setup viewport
 		glViewport(0, 0, this->width, this->height);
@@ -255,9 +254,6 @@ Window::Open()
     ImGui::CreateContext();
 	ImGui_ImplGlfwGL3_Init(this->window, false);
 	glfwSetCharCallback(window, ImGui_ImplGlfwGL3_CharCallback);
-
-	// setup nanovg
-	this->vg = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES);
 
 	// increase window count and return result
 	Window::WindowCount++;
@@ -309,16 +305,6 @@ Window::SwapBuffers()
 {
 	if (this->window)
 	{
-		if (nullptr != this->nanoFunc)
-		{
-			int32 fbWidth, fbHeight;
-			glClear(GL_STENCIL_BUFFER_BIT);
-			glfwGetWindowSize(this->window, &this->width, &this->height);
-			glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
-			nvgBeginFrame(this->vg, this->width, this->height, (float)fbWidth / (float) this->width);
-			this->nanoFunc(this->vg);
-			nvgEndFrame(this->vg);
-		}
 		if (nullptr != this->uiFunc)
 		{
 			ImGui_ImplGlfwGL3_NewFrame();

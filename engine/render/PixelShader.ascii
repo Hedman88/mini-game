@@ -1,4 +1,6 @@
-#version 430
+#version 300 es
+#extension GL_EXT_separate_shader_objects : require
+precision highp float;
 in vec4 colorOut;
 in vec2 uvOut;
 in vec4 normalOut;
@@ -25,7 +27,7 @@ void main()
     float specularStrength = 0.5 * lightIntensity;
     vec4 viewDir = normalize(viewPos - fragPos);
     vec4 reflectDir = reflect(-lightDir, norm);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0);
     vec4 specular = specularStrength * spec * lightColor;
     
     vec4 lightResult = (ambient + diffuse + specular);

@@ -5,7 +5,8 @@
 SET(files_core
 	app.h
 	app.cc
-	mathLib.h)
+	mathLib.h
+    SDL_gamecontroller.h)
 SOURCE_GROUP("core" FILES ${files_core})
 	
 SET(files_pch ../config.h ../config.cc)

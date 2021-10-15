@@ -14,6 +14,11 @@
 #include "core/mathLib.h"
 #include "render/stb_image.h"
 
+//mini_game
+#include "entity.h"
+#include "enemy.h"
+#include "player.h"
+
 const GLchar* vs =
 "#version 430\n"
 "layout(location=0) in vec4 pos;\n"

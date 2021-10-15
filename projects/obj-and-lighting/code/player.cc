@@ -2,8 +2,8 @@
 
 Player::Player(bool alive=true) : alive(alive)
 {
-    position = vec3(0, 0, 0);
-    rotation = vec3(0, 0, 0);
+    position = Vector(0, 0, 0);
+    rotation = Vector(0, 0, 0);
 }
 
 Player::~Player()

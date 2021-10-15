@@ -4,5 +4,6 @@
 struct Entity
 {
     Vector position;
+    Vector rotation;
 };
 

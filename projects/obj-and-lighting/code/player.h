@@ -4,10 +4,10 @@
 struct Player : Entity
 {
     float velocity;
-    float rotation;
+    float acceleration;
     bool alive;
 
 public:
-    Player();
+    Player(bool alive);
     ~Player();
 };

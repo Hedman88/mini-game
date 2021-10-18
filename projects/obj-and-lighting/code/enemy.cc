@@ -40,7 +40,8 @@ void Enemy::spawnEnemies(std::vector<Enemy>* enemies, unsigned int waves, const 
 
 void Enemy::update()
 {
-    position = position + velocity * acceleration;
+    velocity = (velocity - acceleration) * 0.04f;
+    position = position + (velocity + acceleration);
 }
 
 void Enemy::moveTowardsPlayer(Player* player)
@@ -49,5 +50,6 @@ void Enemy::moveTowardsPlayer(Player* player)
         return;
     if (!this->alive)
         return;
-    acceleration = normalize(player->position - position);
+    acceleration = player->position - position;
+    acceleration.Normalize();
 }

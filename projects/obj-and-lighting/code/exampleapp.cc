@@ -15,6 +15,7 @@
 #include "render/stb_image.h"
 
 //mini_game
+#include <cmath>
 #include "entity.h"
 #include "enemy.h"
 #include "player.h"
@@ -117,6 +118,21 @@ ExampleApp::Open()
         }
     });
 
+    window->SetMouseMoveFunction([this](float64 x, float64 y)
+    {
+        float aimAngle;
+        if (x <= windowWidth && y <= windowHeight)
+            aimAngle = atanf(float(windowWidth - x) / float(windowHeight - y)) - M_PI;
+        else if (x <= windowWidth && y >= windowHeight)
+            aimAngle = atanf(float(windowWidth - x) / float(windowHeight - y));
+        else if (x >= windowWidth && y >= windowHeight)
+            aimAngle = atanf(float(x - windowWidth) / float(y - windowHeight));
+        else if (x >= windowWidth && y <= windowHeight)
+            aimAngle = atanf(float(windowWidth - x) / float(windowHeight - y)) - M_PI;
+
+        this->mouseRot = aimAngle;
+    });
+
 	GLfloat buf[] =
 	{
 		-0.5f,	-0.5f,	-1,			// pos 0
@@ -167,44 +183,35 @@ ExampleApp::Run()
 	int width, height;
 	window->GetSize(width, height);
 	Camera camera = Camera(90, width, height, 0.001, 1000);
-
     // The rotation caused by mouse held in radians
-    float mouseRot = 0.0;
+    
     // The additive position vector for the model
     Vector modelPos = Vector(0,0,0,1);
     // How fast will the cube move?
     float moveSpeed = 0.05;
-
-    int i = 0;
+    
+    camera.SetRot(RotationX(M_PI / 2.f));
+    window->GetSize(windowWidth, windowHeight);
+    windowWidth >>= 1;
+    windowHeight >>= 1;
 
 	while (this->window->IsOpen())
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		this->window->Update();
-
-		//camera.SetRot(RotationY(0.01 * i));
-        if(this->LMBPressed){
-            mouseRot += 0.05;
-        }
-        if(this->qPressed){
-		    camera.AddPos(Vector(0, 0, -0.15));
-        }
-        if(this->ePressed){
-		    camera.AddPos(Vector(0, 0, 0.15));
-        }
-
-        // WASD = up, down, left, right bools
-        if(this->up) modelPos.y += moveSpeed;
+    
+        if(this->up) modelPos.z -= moveSpeed;
         if(this->left) modelPos.x -= moveSpeed;
-        if(this->down) modelPos.y -= moveSpeed;
+        if(this->down) modelPos.z += moveSpeed;
         if(this->right) modelPos.x += moveSpeed;
 
         // The light node sends up its values to the meshes shader program
         lightNode.GiveLight(camera.GetPos());
-        gNode.Draw(camera.GetVPMatrix(), PositionMat(modelPos) * RotationY(mouseRot));
 
-        lightNode.Draw(camera.GetVPMatrix() * RotationY(0.01*i));
-        i++;
+        camera.SetPos(modelPos);
+        gNode.Draw(camera.GetVPMatrix(), PositionMat(modelPos * -1.f) * RotationY(mouseRot));
+
+        lightNode.Draw(camera.GetVPMatrix());
 
 		this->window->SwapBuffers();
 	}

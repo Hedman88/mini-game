@@ -10,10 +10,10 @@ struct Enemy : Entity
     Vector acceleration;
     bool alive;
 public:
-    void moveTowardsPlayer(Player* player);
-    static void spawnEnemies(std::vector<Enemy>* enmemies, unsigned int waves, const unsigned int width, const unsigned int height);
+    void MoveTowardsPlayer(Player* player);
+    static void SpawnEnemies(std::vector<Enemy>* enmemies, unsigned int waves, const unsigned int width, const unsigned int height);
 
-    void update();
+    void Update(Player* player);
     Enemy(Vector position, Vector rotation, bool alive);
     ~Enemy();
 };

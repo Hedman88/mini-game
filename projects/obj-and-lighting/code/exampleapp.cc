@@ -174,11 +174,16 @@ ExampleApp::Run()
     GraphicsNode gNode(objPath);
     gNode.InitNode(vsPath, psPath, texturePath);
 
+    GraphicsNode bulletNode(objPath);
+    bulletNode.InitNode(vsPath, psPath, texturePath);
+    bulletNode.SetSR(gNode.GetSR());
+
     const char* lvsPath = "../../../engine/render/PointLightVS.ascii";
     const char* lpsPath = "../../../engine/render/PointLightPS.ascii";
     PointLightNode lightNode(Vector(0,1,0), Vector(1,1,1,1), 1);
     lightNode.InitNode(lvsPath, lpsPath);
     lightNode.SetSharedShader(gNode.GetSR());
+
 
 	int width, height;
 	window->GetSize(width, height);
@@ -189,6 +194,13 @@ ExampleApp::Run()
     Vector modelPos = Vector(0,0,0,1);
     // How fast will the cube move?
     float moveSpeed = 0.05;
+
+    const int shootingRate = 1; // coolDown effect
+    int shootingTimer; // in seconds currently
+    
+    //stores the players direction and position when LMBPressed = true
+    Matrix firingRotation;
+    Vector bulletTrailStart;
     
     camera.SetRot(RotationX(M_PI / 2.f));
     window->GetSize(windowWidth, windowHeight);
@@ -200,7 +212,10 @@ ExampleApp::Run()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		this->window->Update();
 
+        camera.SetPos(modelPos * -1.f);
+
         Vector moveInput(this->right - this->left, 0, this->down - this->up);
+        
         if (moveInput.Length())
             moveInput.Normalize();
         moveInput = moveInput * moveSpeed;
@@ -208,11 +223,24 @@ ExampleApp::Run()
 
         // The light node sends up its values to the meshes shader program
         lightNode.GiveLight(camera.GetPos());
-
-        camera.SetPos(modelPos * -1.f);
+        
         gNode.Draw(camera.GetVPMatrix(), PositionMat(modelPos) * RotationY(mouseRot));
 
         lightNode.Draw(camera.GetVPMatrix());
+        if (this->LMBPressed)
+        {
+            if (time(NULL) - shootingTimer >= 0.f)
+            {
+                shootingTimer = time(NULL) + shootingRate;
+                bulletTrailStart = modelPos;
+                firingRotation = RotationY(mouseRot);
+            }
+        }
+        if (time(NULL) - shootingTimer < 0.f)
+        {
+            bulletTrailStart = modelPos;            
+            bulletNode.Draw(camera.GetVPMatrix(), (ScaleMat(20.f)) * PositionMat(bulletTrailStart) * firingRotation);
+        }
 
 		this->window->SwapBuffers();
 	}

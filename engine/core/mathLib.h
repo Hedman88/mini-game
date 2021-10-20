@@ -255,6 +255,21 @@ inline Matrix RotationZ(float angle) {
 	return Rotation(angle, Vector(0, 0, 1));
 }
 
+inline Matrix ScaleMat(float rhs)
+{
+	Matrix m;
+	for (int i = 0; i < 16; i++)
+		m[i] = m[i] * rhs;
+}
+
+inline Matrix ScaleMat(Vector whd)
+{ // width height depth
+	Matrix r = Matrix(new Vector[4]{ Vector(whd.x, 0, 0, 0),
+									 Vector(0, whd.y, 0, 0),
+									 Vector(0, 0, whd.z, 0),
+									 Vector(0 ,0, 0, 1) });
+}
+
 inline Matrix PositionMat(Vector xyz) {
 	Matrix r = Matrix(new Vector[4]{ Vector(1, 0, 0, xyz.x),
 									 Vector(0, 1, 0, xyz.y),

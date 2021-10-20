@@ -16,7 +16,7 @@ Enemy::~Enemy()
 
 
 // spawn waves onto map
-void Enemy::spawnEnemies(std::vector<Enemy*>* enemies, unsigned int waves, const unsigned int width, const unsigned int height)
+void Enemy::spawnEnemies(std::vector<Enemy>* enemies, unsigned int waves, const unsigned int width, const unsigned int height)
 {
     if (enemies == nullptr)
     {
@@ -33,9 +33,15 @@ void Enemy::spawnEnemies(std::vector<Enemy*>* enemies, unsigned int waves, const
     {
         int x = rand() % width, y = rand() % height;
         Vector position = Vector(x, y, 0);
-        Enemy* en = new Enemy(position, Vector(0, 0, 0), true);
+        Enemy en(position, Vector(0, 0, 0), true);
         enemies->push_back(en);
     }
+}
+
+void Enemy::update()
+{
+    velocity = (velocity - acceleration) * 0.04f;
+    position = position + (velocity + acceleration);
 }
 
 void Enemy::moveTowardsPlayer(Player* player)
@@ -44,5 +50,6 @@ void Enemy::moveTowardsPlayer(Player* player)
         return;
     if (!this->alive)
         return;
-    
+    acceleration = player->position - position;
+    acceleration.Normalize();
 }

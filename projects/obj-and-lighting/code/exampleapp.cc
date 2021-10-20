@@ -13,37 +13,12 @@
 #include "render/Camera.h"
 #include "core/mathLib.h"
 #include "render/stb_image.h"
+//#include <GLFW/glfw3.h>
 
 //mini_game
 #include "entity.h"
 #include "enemy.h"
 #include "player.h"
-
-const GLchar* vs =
-"#version 430\n"
-"layout(location=0) in vec4 pos;\n"
-"layout(location=1) in vec4 color;\n"
-"layout(location=2) in vec2 uvIn;\n"
-"layout(location=0) out vec4 Color;\n"
-"layout(location=1) out vec2 uvOut;\n"
-"uniform mat4 matrix;\n"
-"void main()\n"
-"{\n"
-"	gl_Position = matrix * pos;\n"
-"	Color = color;\n"
-"   uvOut = uvIn;\n"
-"}\n";
-
-const GLchar* ps =
-"#version 430\n"
-"layout(location=0) in vec4 color;\n"
-"layout(location=1) in vec2 uvIn;\n"
-"out vec4 Color;\n"
-"uniform sampler2D image;\n"
-"void main()\n"
-"{\n"
-"	Color = texture(image, uvIn);\n"
-"}\n";
 
 using namespace Display;
 namespace Example
@@ -151,15 +126,15 @@ ExampleApp::Run()
 	glDepthFunc(GL_LEQUAL);
 	glEnable(GL_DEPTH_TEST);
 
-    const char* vsPath = "../../../engine/render/VertexShader.ascii";
-    const char* psPath = "../../../engine/render/PixelShader.ascii";
-    const char* texturePath = "../../../assets/textures/grey.png";
-    const char* objPath = "../../../assets/models/Wolf.obj";
+    const char* vsPath = "engine/render/VertexShader.ascii";
+    const char* psPath = "engine/render/PixelShader.ascii";
+    const char* texturePath = "assets/textures/grey.png";
+    const char* objPath = "assets/models/Wolf.obj";
     GraphicsNode gNode(objPath);
     gNode.InitNode(vsPath, psPath, texturePath);
 
-    const char* lvsPath = "../../../engine/render/PointLightVS.ascii";
-    const char* lpsPath = "../../../engine/render/PointLightPS.ascii";
+    const char* lvsPath = "engine/render/PointLightVS.ascii";
+    const char* lpsPath = "engine/render/PointLightPS.ascii";
     PointLightNode lightNode(Vector(0,1,0), Vector(1,1,1,1), 1);
     lightNode.InitNode(lvsPath, lpsPath);
     lightNode.SetSharedShader(gNode.GetSR());
@@ -181,6 +156,31 @@ ExampleApp::Run()
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		this->window->Update();
+
+        //if(glfwJoystickIsGamepad(GLFW_JOYSTICK_1)){
+        //    std::cout << "Gamepad connected" << std::endl;
+        //}
+
+        GLFWgamepadstate state;
+        if(glfwGetGamepadState(GLFW_JOYSTICK_1, &state)){
+            if(state.buttons[GLFW_GAMEPAD_BUTTON_A]){
+                std::cout << "A" << std::endl;
+            }
+            if(state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] > -0.5){
+                std::cout << "Trigger" << std::endl;
+
+            }
+            if(state.buttons[GLFW_GAMEPAD_BUTTON_BACK]){
+                std::cout << "Back" << std::endl;
+                //Reset
+            }
+
+            modelPos.y -= state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y]* moveSpeed;
+            modelPos.x += state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] * moveSpeed;
+            //player.Move(state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y, GLFW_GAMEPAD_AXIS_LEFT_X]);
+            //player.Aim(state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y, GLFW_GAMEPAD_AXIS_RIGHT_X]);
+            //player.Shoot(state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER]);
+        }
 
 		//camera.SetRot(RotationY(0.01 * i));
         if(this->LMBPressed){

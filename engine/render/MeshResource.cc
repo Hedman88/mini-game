@@ -111,6 +111,7 @@ std::shared_ptr<MeshResource> MeshResource::LoadObj(const char* filePath){
     int vertexAmount = 0;
 
     // Open the file
+    std::cout << filePath << std::endl;
     FILE* file = fopen(filePath, "r");
     if(file == NULL){
         std::cout << "ERROR: opening file, check MeshResource.cc" << std::endl;

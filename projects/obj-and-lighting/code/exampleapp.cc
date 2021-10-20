@@ -199,17 +199,18 @@ ExampleApp::Run()
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		this->window->Update();
-    
-        if(this->up) modelPos.z -= moveSpeed;
-        if(this->left) modelPos.x -= moveSpeed;
-        if(this->down) modelPos.z += moveSpeed;
-        if(this->right) modelPos.x += moveSpeed;
+
+        Vector moveInput(this->right - this->left, 0, this->down - this->up);
+        if (moveInput.Length())
+            moveInput.Normalize();
+        moveInput = moveInput * moveSpeed;
+        modelPos = modelPos + moveInput;
 
         // The light node sends up its values to the meshes shader program
         lightNode.GiveLight(camera.GetPos());
 
-        camera.SetPos(modelPos);
-        gNode.Draw(camera.GetVPMatrix(), PositionMat(modelPos * -1.f) * RotationY(mouseRot));
+        camera.SetPos(modelPos * -1.f);
+        gNode.Draw(camera.GetVPMatrix(), PositionMat(modelPos) * RotationY(mouseRot));
 
         lightNode.Draw(camera.GetVPMatrix());
 

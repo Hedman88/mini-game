@@ -193,11 +193,32 @@ ExampleApp::Run()
 		    camera.AddPos(Vector(0, 0, 0.15));
         }
 
-        // WASD = up, down, left, right bools
-        if(this->up) modelPos.y += moveSpeed;
-        if(this->left) modelPos.x -= moveSpeed;
-        if(this->down) modelPos.y -= moveSpeed;
-        if(this->right) modelPos.x += moveSpeed;
+        GLFWgamepadstate state;
+        if(glfwGetGamepadState(GLFW_JOYSTICK_1, &state)){
+            if(state.buttons[GLFW_GAMEPAD_BUTTON_A]){
+                std::cout << "A" << std::endl;
+            }
+            if(state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] > -0.5){
+                std::cout << "Trigger" << std::endl;
+
+            }
+            if(state.buttons[GLFW_GAMEPAD_BUTTON_BACK]){
+                std::cout << "Back" << std::endl;
+                //Reset
+            }
+
+            modelPos.y -= state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] * moveSpeed;
+            modelPos.x += state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] * moveSpeed;
+            //player.Move(state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y, GLFW_GAMEPAD_AXIS_LEFT_X]);
+            //player.Aim(state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y, GLFW_GAMEPAD_AXIS_RIGHT_X]);
+            //player.Shoot(state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER]);
+        }
+
+        // Vector moveInput(this->right - this->left, 0, this->down - this->up);
+        // if (moveInput.Length())
+        //     moveInput.Normalize();
+        // moveInput = moveInput * moveSpeed;
+        // modelPos = modelPos + moveInput;
 
         // The light node sends up its values to the meshes shader program
         lightNode.GiveLight(camera.GetPos());

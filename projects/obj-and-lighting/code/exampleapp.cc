@@ -13,6 +13,7 @@
 #include "render/Camera.h"
 #include "core/mathLib.h"
 #include "render/stb_image.h"
+#include "GLFW/glfw3.h"
 
 //mini_game
 #include <cmath>
@@ -211,6 +212,32 @@ ExampleApp::Run()
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		this->window->Update();
+
+        GLFWgamepadstate state;
+        if(glfwGetGamepadState(GLFW_JOYSTICK_1, &state)){
+            if(state.buttons[GLFW_GAMEPAD_BUTTON_A]){
+                std::cout << "A" << std::endl;
+            }
+            if(state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] > -0.5){
+                std::cout << "Trigger: " << state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] << std::endl;
+
+            }
+            if(state.buttons[GLFW_GAMEPAD_BUTTON_BACK]){
+                std::cout << "Back" << std::endl;
+                //Reset
+            }
+//left is -1
+//up is -1
+//down is 1
+//right is 1
+            if ()
+            modelPos.z -= state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] * moveSpeed;
+            modelPos.x += state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] * moveSpeed;
+
+            //player.Move(state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y, GLFW_GAMEPAD_AXIS_LEFT_X]);
+            //player.Aim(state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y, GLFW_GAMEPAD_AXIS_RIGHT_X]);
+            //player.Shoot(state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER]);
+        }
 
         camera.SetPos(modelPos * -1.f);
 

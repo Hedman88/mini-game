@@ -16,6 +16,7 @@
 //#include <GLFW/glfw3.h>
 
 //mini_game
+#include <cmath>
 #include "entity.h"
 #include "enemy.h"
 #include "player.h"
@@ -92,6 +93,21 @@ ExampleApp::Open()
         }
     });
 
+    window->SetMouseMoveFunction([this](float64 x, float64 y)
+    {
+        float aimAngle;
+        if (x <= windowWidth && y <= windowHeight)
+            aimAngle = atanf(float(windowWidth - x) / float(windowHeight - y)) - M_PI;
+        else if (x <= windowWidth && y >= windowHeight)
+            aimAngle = atanf(float(windowWidth - x) / float(windowHeight - y));
+        else if (x >= windowWidth && y >= windowHeight)
+            aimAngle = atanf(float(x - windowWidth) / float(y - windowHeight));
+        else if (x >= windowWidth && y <= windowHeight)
+            aimAngle = atanf(float(windowWidth - x) / float(windowHeight - y)) - M_PI;
+
+        this->mouseRot = aimAngle;
+    });
+
 	GLfloat buf[] =
 	{
 		-0.5f,	-0.5f,	-1,			// pos 0
@@ -139,24 +155,35 @@ ExampleApp::Run()
     lightNode.InitNode(lvsPath, lpsPath);
     lightNode.SetSharedShader(gNode.GetSR());
 
+
 	int width, height;
 	window->GetSize(width, height);
 	Camera camera = Camera(90, width, height, 0.001, 1000);
-
     // The rotation caused by mouse held in radians
-    float mouseRot = 0.0;
+    
     // The additive position vector for the model
     Vector modelPos = Vector(0,0,0,1);
     // How fast will the cube move?
     float moveSpeed = 0.05;
 
-    int i = 0;
+    const int shootingRate = 1; // coolDown effect
+    int shootingTimer; // in seconds currently
+    
+    //stores the players direction and position when LMBPressed = true
+    Matrix firingRotation;
+    Vector bulletTrailStart;
+    
+    camera.SetRot(RotationX(M_PI / 2.f));
+    window->GetSize(windowWidth, windowHeight);
+    windowWidth >>= 1;
+    windowHeight >>= 1;
 
 	while (this->window->IsOpen())
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		this->window->Update();
 
+        camera.SetPos(modelPos * -1.f);
         //if(glfwJoystickIsGamepad(GLFW_JOYSTICK_1)){
         //    std::cout << "Gamepad connected" << std::endl;
         //}
@@ -193,6 +220,12 @@ ExampleApp::Run()
 		    camera.AddPos(Vector(0, 0, 0.15));
         }
 
+        Vector moveInput(this->right - this->left, 0, this->down - this->up);
+        
+        if (moveInput.Length())
+            moveInput.Normalize();
+        moveInput = moveInput * moveSpeed;
+        modelPos = modelPos + moveInput;
         GLFWgamepadstate state;
         if(glfwGetGamepadState(GLFW_JOYSTICK_1, &state)){
             if(state.buttons[GLFW_GAMEPAD_BUTTON_A]){
@@ -222,10 +255,24 @@ ExampleApp::Run()
 
         // The light node sends up its values to the meshes shader program
         lightNode.GiveLight(camera.GetPos());
+        
         gNode.Draw(camera.GetVPMatrix(), PositionMat(modelPos) * RotationY(mouseRot));
 
-        lightNode.Draw(camera.GetVPMatrix() * RotationY(0.01*i));
-        i++;
+        lightNode.Draw(camera.GetVPMatrix());
+        if (this->LMBPressed)
+        {
+            if (time(NULL) - shootingTimer >= 0.f)
+            {
+                shootingTimer = time(NULL) + shootingRate;
+                bulletTrailStart = modelPos;
+                firingRotation = RotationY(mouseRot);
+            }
+        }
+        if (time(NULL) - shootingTimer < 0.f)
+        {
+            bulletTrailStart = modelPos;            
+            bulletNode.Draw(camera.GetVPMatrix(), (ScaleMat(20.f)) * PositionMat(bulletTrailStart) * firingRotation);
+        }
 
 		this->window->SwapBuffers();
 	}

@@ -14,7 +14,10 @@ GraphicsNode::GraphicsNode(const char* objPath){
 }
 
 void GraphicsNode::InitNode(const char* vShaderFile, const char* pShaderFile, const char* textureFile){
-    this->sr->LoadShaders(vShaderFile, pShaderFile);
+    if (strcmp(vShaderFile, "") != 0 && strcmp(pShaderFile, "") != 0)
+    {
+        this->sr->LoadShaders(vShaderFile, pShaderFile);
+    }
     if(strcmp(textureFile, "") != 0){
         this->tr->LoadFromFile(textureFile);
     }

@@ -2,10 +2,10 @@
 #include <ctime>
 #include <cmath>
 
-Enemy::Enemy(Vector position, Vector rotation, bool alive=true) : alive(alive)
+Enemy::Enemy(Vector position)
 {
     this->position = position;
-    this->rotation = rotation;
+    this->graphicNode = new GraphicsNode();
 }
 
 Enemy::~Enemy()
@@ -33,22 +33,15 @@ void Enemy::SpawnEnemies(std::vector<Enemy>* enemies, unsigned int waves, const 
     {
         int x = rand() % width, y = rand() % height;
         Vector position = Vector(x, y, 0);
-        Enemy en(position, Vector(0, 0, 0), true);
+        Enemy en(position);
         enemies->push_back(en);
     }
 }
 
-void Enemy::Update(Player* player)
+void Enemy::Update(Player player)
 {
-    if (player == nullptr)
-        return;
-    if (!this->alive)
-        return;
-    acceleration = player->position - position;
-    acceleration.Normalize();
-
-    velocity = (acceleration - velocity) * .5f;
+    velocity = player.position - position;
+    if (velocity.Length())
     velocity.Normalize();
-
-    position = position + velocity;
+    position = position + velocity * moveSpeed;
 }

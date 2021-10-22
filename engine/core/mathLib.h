@@ -260,6 +260,7 @@ inline Matrix ScaleMat(float rhs)
 	Matrix m;
 	for (int i = 0; i < 16; i++)
 		m[i] = m[i] * rhs;
+	return m;
 }
 
 inline Matrix ScaleMat(Vector whd)
@@ -268,6 +269,7 @@ inline Matrix ScaleMat(Vector whd)
 									 Vector(0, whd.y, 0, 0),
 									 Vector(0, 0, whd.z, 0),
 									 Vector(0 ,0, 0, 1) });
+	return r;
 }
 
 inline Matrix PositionMat(Vector xyz) {

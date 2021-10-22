@@ -37,5 +37,9 @@ private:
     bool right = false;
     bool qPressed = false;
     bool ePressed = false;
+
+	//mini_game
+	float mouseRot;
+	int32 windowWidth, windowHeight;
 };
 } // namespace Example

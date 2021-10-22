@@ -16,8 +16,8 @@ uniform float lightIntensity;
 
 void main()
 {
-    float ambientStrength = 0.1;
-    vec4 ambient = ambientStrength * lightColor;
+    float ambientStrength = 0.5;
+    vec4 ambient = ambientStrength * vec4(1,1,1,1);
 
     vec4 norm = normalize(normalOut);
     vec4 lightDir = normalize(lightPos - fragPos);

@@ -19,6 +19,7 @@
 #include "entity.h"
 #include "enemy.h"
 #include "player.h"
+#include "Map.h"
 
 using namespace Display;
 namespace Example
@@ -129,10 +130,14 @@ ExampleApp::Run()
     const char* vsPath = "engine/render/VertexShader.ascii";
     const char* psPath = "engine/render/PixelShader.ascii";
     const char* texturePath = "assets/textures/grey.png";
-    const char* objPath = "assets/models/Wolf.obj";
+    const char* objPath = "assets/kenney_retroUrbanKit/Models/OBJ_format/roadDirt_center.obj";
     GraphicsNode gNode(objPath);
     gNode.InitNode(vsPath, psPath, texturePath);
 
+    Map map;
+    map.GenerateMap();
+    map.InitTiles(vsPath, psPath, texturePath);
+    
     const char* lvsPath = "engine/render/PointLightVS.ascii";
     const char* lpsPath = "engine/render/PointLightPS.ascii";
     PointLightNode lightNode(Vector(0,1,0), Vector(1,1,1,1), 1);
@@ -202,6 +207,8 @@ ExampleApp::Run()
         // The light node sends up its values to the meshes shader program
         lightNode.GiveLight(camera.GetPos());
         gNode.Draw(camera.GetVPMatrix(), PositionMat(modelPos) * RotationY(mouseRot));
+
+        map.Draw(camera.GetVPMatrix());
 
         lightNode.Draw(camera.GetVPMatrix() * RotationY(0.01*i));
         i++;

@@ -3,11 +3,11 @@
 
 struct Player : Entity
 {
+    float moveSpeed = 0.2f;
+    float radius;
     float velocity;
-    float acceleration;
-    bool alive;
 
 public:
-    Player(bool alive);
+    Player();
     ~Player();
 };

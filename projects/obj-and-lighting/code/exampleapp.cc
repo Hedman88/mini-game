@@ -13,10 +13,14 @@
 #include "render/Camera.h"
 #include "core/mathLib.h"
 #include "render/stb_image.h"
-//#include <GLFW/glfw3.h>
+#include "GLFW/glfw3.h"
 
 //mini_game
 #include <cmath>
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+#include <ctime>
 #include "entity.h"
 #include "enemy.h"
 #include "player.h"
@@ -96,17 +100,18 @@ ExampleApp::Open()
 
     window->SetMouseMoveFunction([this](float64 x, float64 y)
     {
-        float aimAngle;
-        if (x <= windowWidth && y <= windowHeight)
-            aimAngle = atanf(float(windowWidth - x) / float(windowHeight - y)) - M_PI;
-        else if (x <= windowWidth && y >= windowHeight)
-            aimAngle = atanf(float(windowWidth - x) / float(windowHeight - y));
-        else if (x >= windowWidth && y >= windowHeight)
-            aimAngle = atanf(float(x - windowWidth) / float(y - windowHeight));
-        else if (x >= windowWidth && y <= windowHeight)
-            aimAngle = atanf(float(windowWidth - x) / float(windowHeight - y)) - M_PI;
+        // std::cout << x << " " << y << std::endl;
+        // float aimAngle;
+        // if (x <= windowWidth && y <= windowHeight)
+        //     aimAngle = atanf(float(windowWidth - x) / float(windowHeight - y)) - M_PI;
+        // else if (x <= windowWidth && y >= windowHeight)
+        //     aimAngle = atanf(float(windowWidth - x) / float(windowHeight - y));
+        // else if (x >= windowWidth && y >= windowHeight)
+        //     aimAngle = atanf(float(x - windowWidth) / float(y - windowHeight));
+        // else if (x >= windowWidth && y <= windowHeight)
+        //     aimAngle = atanf(float(windowWidth - x) / float(windowHeight - y)) - M_PI;
 
-        this->mouseRot = aimAngle;
+        // this->mouseRot = aimAngle;
     });
 
 	GLfloat buf[] =
@@ -171,7 +176,6 @@ ExampleApp::Run()
     // The additive position vector for the model
     Vector modelPos = Vector(0,0,0,1);
     // How fast will the cube move?
-    float moveSpeed = 0.05;
 
     const int shootingRate = 1; // coolDown effect
     int shootingTimer; // in seconds currently
@@ -185,55 +189,87 @@ ExampleApp::Run()
     windowWidth >>= 1;
     windowHeight >>= 1;
 
-    int i = 0;
+    Player pl;
+    pl.position = modelPos;
+    pl.radius = 0.5f;
+
+    unsigned int waves = 1;
+    std::vector<Enemy> enemies;
+
+    Enemy::SpawnEnemies(&enemies, waves, 40, 30);
+
+    for (size_t i = 0; i < enemies.size(); i++)
+    {
+        enemies[i].graphicNode->SetMR(MeshResource::LoadObj(objPath));
+        enemies[i].graphicNode->InitNode(vsPath, psPath, texturePath);
+        enemies[i].graphicNode->SetSR(gNode.GetSR());
+    }
+
+
 	while (this->window->IsOpen())
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		this->window->Update();
 
-        camera.SetPos(modelPos * -1.f);
-        //if(glfwJoystickIsGamepad(GLFW_JOYSTICK_1)){
-        //    std::cout << "Gamepad connected" << std::endl;
-        //}
-
         GLFWgamepadstate state;
         if(glfwGetGamepadState(GLFW_JOYSTICK_1, &state)){
-            if(state.buttons[GLFW_GAMEPAD_BUTTON_A]){
-                std::cout << "A" << std::endl;
+            if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] > -0.5f)
+            {
+                // firing at enenmy
             }
-            if(state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] > -0.5){
-                std::cout << "Trigger" << std::endl;
+            // map.tiles;
+            //left is -1
+            //up is -1
+            //down is 1
+            //right is 1
+            const float CONTROLLER_DEADZONE = 0.1f;
 
+            //check if the axis input is significant
+
+            if (state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] > CONTROLLER_DEADZONE ||
+                state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] < -CONTROLLER_DEADZONE)
+            {
+                //if (player->position + player->radius < setOfTiles[player->position].size / 2)
+                modelPos.x += state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] * pl.moveSpeed;
             }
-            if(state.buttons[GLFW_GAMEPAD_BUTTON_BACK]){
-                std::cout << "Back" << std::endl;
-                //Reset
+
+            if (state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] > CONTROLLER_DEADZONE ||
+                state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] < -CONTROLLER_DEADZONE)
+            {
+                // test if a wall is along the forward vector
+                //if (player->position + setOfTiles[player->position].size / 2)
+                    modelPos.z += state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] * pl.moveSpeed;
             }
 
-            modelPos.y -= state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y]* moveSpeed;
-            modelPos.x += state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] * moveSpeed;
-            //player.Move(state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y, GLFW_GAMEPAD_AXIS_LEFT_X]);
-            //player.Aim(state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y, GLFW_GAMEPAD_AXIS_RIGHT_X]);
-            //player.Shoot(state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER]);
-        }
+            if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X] != 0.f)
+            {
+                if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y] > 0.f)
+                    this->mouseRot = atanf(state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X] / state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y]);
+                else if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y < -0.f])
+                    this->mouseRot = atanf(state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X] / state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y]) - M_PI;
+                
+            }
 
-		//camera.SetRot(RotationY(0.01 * i));
-        if(this->LMBPressed){
-            mouseRot += 0.05;
+            pl.position = modelPos;
         }
-        if(this->qPressed){
-		    camera.AddPos(Vector(0, 0, -0.15));
-        }
-        if(this->ePressed){
-		    camera.AddPos(Vector(0, 0, 0.15));
-        }
-
-        Vector moveInput(this->right - this->left, 0, this->down - this->up);
         
-        if (moveInput.Length())
-            moveInput.Normalize();
-        moveInput = moveInput * moveSpeed;
-        modelPos = modelPos + moveInput;
+        for (size_t i = 0; i < enemies.size(); i++)
+        {
+            if ((pl.position - enemies[i].position).Length() < pl.radius)
+            {
+                printf("GAME OVER!\n");
+                this->window->Close();
+                //enemies[i].position = Vector(0, 0, -700);
+                //waves++;
+            }
+            else
+            {
+                enemies[i].Update(pl);
+            }
+            
+        }
+        
+        camera.SetPos(modelPos * -1.f);
 
         // Vector moveInput(this->right - this->left, 0, this->down - this->up);
         // if (moveInput.Length())
@@ -246,6 +282,14 @@ ExampleApp::Run()
         
         gNode.Draw(camera.GetVPMatrix(), PositionMat(modelPos) * RotationY(mouseRot));
 
+        lightNode.Draw(camera.GetVPMatrix());
+
+        for (size_t i = 0; i < enemies.size(); i++)
+        {
+            enemies[i].graphicNode->Draw(camera.GetVPMatrix(), PositionMat(enemies[i].position) * firingRotation);
+        }
+
+        // bulletNode.Draw(camera.GetVPMatrix(), PositionMat(en.position) * firingRotation);
         map.Draw(camera.GetVPMatrix());
 
         lightNode.Draw(camera.GetVPMatrix() * RotationY(0.01*i));

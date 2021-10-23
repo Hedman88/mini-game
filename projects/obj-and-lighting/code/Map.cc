@@ -1,71 +1,59 @@
 #include "Map.h"
+#include <cstdlib>
+#include <ctime>
 
 Tile::Tile(int coordX, int coordY, bool walkable){
     this->pos.x = coordX;
     this->pos.y = 0;
     this->pos.z = coordY;
     this->pos.w = 1;
-    //this->topNeighbourIndex = topIdx;
-    //this->leftNeighbourIndex = leftIdx;
-    //this->bottomNeighbourIndex = botIdx;
-    //this->rightNeighbourIndex = rightIdx;
     this->width = 1;
     this->height = 1;
     this->walkable = walkable;
-    if(walkable){
-        this->gNode.reset(new GraphicsNode("assets/kenney_retroUrbanKit/Models/OBJ_format/roadDirt_center.obj"));
-    }else{
-        this->gNode.reset(new GraphicsNode("assets/kenney_retroUrbanKit/Models/OBJ_format/tree_small.obj"));
-    }
 }
 
 void Tile::SetGNode(std::shared_ptr<GraphicsNode> gNode){
     this->gNode = gNode;
 }
 
-//int Tile::GetNeighbourIndex(int nr){
-//    switch(nr){
-//        case 1:
-//            return this->topNeighbourIndex;
-//            break;
-//        case 2:
-//            return this->leftNeighbourIndex;
-//            break;
-//        case 3:
-//            return this->bottomNeighbourIndex;
-//            break;
-//        case 4:
-//            return this->rightNeighbourIndex;
-//        default:
-//            std::cout << "specify a nr from 1-4 corresponding to WASD in order, check Map.cc" << std::endl;
-//    }
-//    return -1;
-//}
-
-void Tile::AddEnemyOnTile(Enemy enemy){
-    //this->enemiesOnTile[enemy.id] = enemy;
-}
 
 //------------------------------MAP-------------------------------------//
 //----------------------------------------------------------------------//
-void Map::GenerateMap(){
-    for(int y = 0; y < 16; y++){
+void Map::GenerateMap(int maxRand, int wallShare){
+
+    srand((int)std::time(0));
+    int r;
+    for(int z = 0; z < 16; z++){
         for(int x = 0; x < 16; x++){
-            if(y == 0 || x == 0 || y == 15 || x == 15){
-                std::shared_ptr<Tile> tileP = std::make_shared<Tile>(x, y, false);
-                this->tiles[y*16+x] = tileP;
+            if(z == 0 || x == 0 || z == 15 || x == 15){
+                std::shared_ptr<Tile> tileP = std::make_shared<Tile>(x, z, false);
+                this->tiles[z*16+x] = tileP;
             }
-            else{
-                std::shared_ptr<Tile> tileP = std::make_shared<Tile>(x, y, true);
-                this->tiles[y*16+x] = tileP;
+            else if(r > wallShare)
+            {
+                std::shared_ptr<Tile> tileP = std::make_shared<Tile>(x, z, true);
+                this->tiles[z*16+x] = tileP;
+            }else{
+                std::shared_ptr<Tile> tileP = std::make_shared<Tile>(x, z, false);
+                this->tiles[z*16+x] = tileP;
             }
+            r = (rand() % maxRand) + 1;
         }
     }
 }
 
-void Map::InitTiles(const char* vShaderFile, const char* pShaderFile, const char* textureFile){
+void Map::InitTiles(const char* vShaderFile, const char* pShaderFile, const char* roadTexture, const char* wallTexture){
+    std::shared_ptr<GraphicsNode> gNodeWalkable = std::make_shared<GraphicsNode>("assets/kenney_retroUrbanKit/Models/OBJ_format/grass.obj");
+    gNodeWalkable->InitNode(vShaderFile, pShaderFile, roadTexture);
+    std::shared_ptr<GraphicsNode> gNodeWall = std::make_shared<GraphicsNode>("assets/kenney_retroUrbanKit/Models/OBJ_format/wallA_roof.obj");
+    gNodeWall->InitNode(vShaderFile, pShaderFile, wallTexture);
+
     for(int i = 0; i < 16*16; i++){
-        this->tiles[i]->gNode->InitNode(vShaderFile, pShaderFile, textureFile);
+        if(this->tiles[i]->walkable){
+            this->tiles[i]->SetGNode(gNodeWalkable);
+        }else if(!this->tiles[i]->walkable){
+            this->tiles[i]->SetGNode(gNodeWall);
+        }
         if(i != 0) this->tiles[i]->gNode->SetSR(this->tiles[0]->gNode->GetSR());
     }
 }
@@ -76,6 +64,6 @@ void Map::Draw(Matrix cameraVPMatrix){
     }
 }
 
-std::shared_ptr<Tile> Map::GetTile(int coordX, int coordY){
-    return this->tiles[coordX + 16 * coordY];
+std::shared_ptr<Tile> Map::GetTile(int coordX, int coordZ){
+    return this->tiles[coordX + 16 * coordZ];
 }

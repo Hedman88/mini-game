@@ -150,9 +150,11 @@ ExampleApp::Run()
     GraphicsNode gNode(objPath);
     gNode.InitNode(vsPath, psPath, texturePath);
 
+    const char* roadTexture = "assets/kenney_retroUrbanKit/Models/OBJ_format/Textures/grass.png";
+    const char* wallTexture = "assets/kenney_retroUrbanKit/Models/OBJ_format/Textures/wall.png";
     Map map;
-    map.GenerateMap();
-    map.InitTiles(vsPath, psPath, texturePath);
+    map.GenerateMap(10, 2);
+    map.InitTiles(vsPath, psPath, roadTexture, wallTexture);
     
     const char* lvsPath = "engine/render/PointLightVS.ascii";
     const char* lpsPath = "engine/render/PointLightPS.ascii";

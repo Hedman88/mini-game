@@ -14,22 +14,19 @@ class Tile
     std::shared_ptr<GraphicsNode> gNode;
     int width, height;
     bool walkable;
-    std::map<int, Enemy> enemiesOnTile;
 
     Tile(int coordX, int coordY, bool walkable);
     void SetGNode(std::shared_ptr<GraphicsNode> gNode);
     int GetNeighbourIndex(int nr);
-    void AddEnemyOnTile(Enemy enemy);
 };
 
 class Map
 {
-    //std::vector<std::shared_ptr<Tile>> tiles;
     std::shared_ptr<Tile> tiles[16*16];
 
   public:
-    void GenerateMap();
-    void InitTiles(const char* vShaderFile, const char* pShaderFile, const char* textureFile);
+    void GenerateMap(int maxRand, int wallShare);
+    void InitTiles(const char* vShaderFile, const char* pShaderFile, const char* roadTexture, const char* wallTexture);
     void Draw(Matrix cameraVPMatrix);
     std::shared_ptr<Tile> GetTile(int coordX, int coordY);
 };

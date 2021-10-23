@@ -292,8 +292,7 @@ ExampleApp::Run()
         // bulletNode.Draw(camera.GetVPMatrix(), PositionMat(en.position) * firingRotation);
         map.Draw(camera.GetVPMatrix());
 
-        lightNode.Draw(camera.GetVPMatrix() * RotationY(0.01*i));
-        i++;
+        lightNode.Draw(camera.GetVPMatrix());
 
 		this->window->SwapBuffers();
 	}

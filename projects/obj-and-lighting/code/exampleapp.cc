@@ -21,6 +21,7 @@
 #define M_PI 3.14159265358979323846
 #endif
 #include <ctime>
+#include "Map.h"
 #include "entity.h"
 #include "enemy.h"
 #include "player.h"

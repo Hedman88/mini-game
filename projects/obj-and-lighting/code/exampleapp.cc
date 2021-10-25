@@ -21,7 +21,8 @@
 #define M_PI 3.14159265358979323846
 #endif
 #include <ctime>
-#include "Map.h"
+#include <chrono>
+#include "unistd.h"
 #include "entity.h"
 #include "enemy.h"
 #include "player.h"
@@ -192,7 +193,9 @@ ExampleApp::Run()
 
     Player pl;
     pl.position = modelPos;
-    pl.radius = 0.5f;
+    pl.radius = 0.2f;
+    pl.gNode = &gNode;
+    const float CONTROLLER_DEADZONE = 0.1f;
 
     unsigned int waves = 1;
     std::vector<Enemy> enemies;
@@ -209,37 +212,60 @@ ExampleApp::Run()
 
 	while (this->window->IsOpen())
 	{
+        auto start = std::chrono::high_resolution_clock::now();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		this->window->Update();
 
         GLFWgamepadstate state;
         if(glfwGetGamepadState(GLFW_JOYSTICK_1, &state)){
+            if (state.buttons[GLFW_GAMEPAD_BUTTON_START])
+            {
+                this->window->Close();
+            }
             if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] > -0.5f)
             {
                 // firing at enenmy
             }
-            // map.tiles;
             //left is -1
             //up is -1
             //down is 1
             //right is 1
-            const float CONTROLLER_DEADZONE = 0.1f;
+            
 
             //check if the axis input is significant
+            
 
-            if (state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] > CONTROLLER_DEADZONE ||
-                state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] < -CONTROLLER_DEADZONE)
-            {
-                //if (player->position + player->radius < setOfTiles[player->position].size / 2)
+            //right
+            if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] > -.5f ||
+                (state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] > CONTROLLER_DEADZONE &&
+                map.GetTile(int(pl.position.x + pl.radius / 2), int(pl.position.z))->walkable))
+            {   
                 modelPos.x += state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] * pl.moveSpeed;
             }
 
-            if (state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] > CONTROLLER_DEADZONE ||
-                state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] < -CONTROLLER_DEADZONE)
+            //left
+            if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] > -.5f ||
+                (state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] < -CONTROLLER_DEADZONE &&
+                map.GetTile(int(pl.position.x - pl.radius), int(pl.position.z))->walkable))
             {
-                // test if a wall is along the forward vector
-                //if (player->position + setOfTiles[player->position].size / 2)
-                    modelPos.z += state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] * pl.moveSpeed;
+                modelPos.x += state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] * pl.moveSpeed;
+            }
+
+
+            // down
+            if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] > -.5f ||
+                (state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] > CONTROLLER_DEADZONE &&
+                map.GetTile(int(pl.position.x), int(pl.position.z + pl.radius / 2))->walkable))
+            {   
+                modelPos.z += state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] * pl.moveSpeed;
+            }
+            
+            //up
+            if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] > -.5f ||
+                (state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] < -CONTROLLER_DEADZONE &&
+                map.GetTile(int(pl.position.x), int(pl.position.z - pl.radius))->walkable))
+            {
+                modelPos.z += state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] * pl.moveSpeed;
             }
 
             if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X] != 0.f)
@@ -248,18 +274,20 @@ ExampleApp::Run()
                     this->mouseRot = atanf(state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X] / state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y]);
                 else if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y < -0.f])
                     this->mouseRot = atanf(state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X] / state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y]) - M_PI;
-                
             }
 
             pl.position = modelPos;
+
+            // map.GetTile((int)pl.position.x, (int)pl.position.z);
+            // printf("tilePos: (%f, %f)\n", pl.position.x, pl.position.z);
         }
         
         for (size_t i = 0; i < enemies.size(); i++)
         {
             if ((pl.position - enemies[i].position).Length() < pl.radius)
             {
-                printf("GAME OVER!\n");
-                this->window->Close();
+                //printf("GAME OVER!\n");
+                //this->window->Close();
                 //enemies[i].position = Vector(0, 0, -700);
                 //waves++;
             }
@@ -281,7 +309,7 @@ ExampleApp::Run()
         // The light node sends up its values to the meshes shader program
         lightNode.GiveLight(camera.GetPos());
         
-        gNode.Draw(camera.GetVPMatrix(), PositionMat(modelPos) * RotationY(mouseRot));
+        pl.gNode->Draw(camera.GetVPMatrix(), PositionMat(modelPos) * RotationY(mouseRot));
 
         lightNode.Draw(camera.GetVPMatrix());
 
@@ -296,6 +324,14 @@ ExampleApp::Run()
         lightNode.Draw(camera.GetVPMatrix());
 
 		this->window->SwapBuffers();
+
+        //get a consistent frame rate
+        auto elapsed = std::chrono::high_resolution_clock::now() - start;
+        long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+        if (microseconds < 33333) // 30 fps
+            usleep(33333 - microseconds);
+        
+        // printf("game loop delay (µs): %i\n", microseconds);
 	}
 }
 

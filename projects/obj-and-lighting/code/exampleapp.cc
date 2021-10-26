@@ -14,6 +14,7 @@
 #include "core/mathLib.h"
 #include "render/stb_image.h"
 #include "GLFW/glfw3.h"
+#include "imgui.h"
 
 //mini_game
 #include <cmath>
@@ -136,6 +137,13 @@ ExampleApp::Open()
 		glBindBuffer(GL_ARRAY_BUFFER, this->triangle);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(buf), buf, GL_STATIC_DRAW);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+        // set ui rendering function
+		this->window->SetUiRender([this]()
+		{
+			this->RenderUI();
+		});
+
 		return true;
 	}
 	return false;
@@ -206,7 +214,6 @@ ExampleApp::Run()
         enemies[i].graphicNode->InitNode("", "", texturePath);
         enemies[i].graphicNode->SetSR(gNode.GetSR());
     }
-
 
 	while (this->window->IsOpen())
 	{
@@ -326,13 +333,31 @@ ExampleApp::Run()
         //get a consistent frame rate
         auto elapsed = std::chrono::high_resolution_clock::now() - start;
         long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+        printf("FPS: %f\n", 1000000 / (float)microseconds);
         if (microseconds < 33333){ // 30 fps
             usleep(33333 - microseconds);
             printf("FPS: %f\n", 1000000 / (float)(33333));
         }else{
-            printf("FPS: %f\n", 1000000 / microseconds);
+            printf("FPS: %f\n", 1000000 / (float)microseconds);
         }
 	}
 }
+void
+ExampleApp::RenderUI()
+{
+	if (this->window->IsOpen())
+	{
+		bool show = true;
+		// create a new window
+		ImGui::Begin("Shader Sources", &show, ImGuiWindowFlags_NoSavedSettings);
 
+
+		// apply button
+		if (ImGui::Button("Apply"))
+		{
+		}
+		// close window
+		ImGui::End();
+	}
+}
 } // namespace Example

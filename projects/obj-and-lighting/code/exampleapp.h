@@ -8,6 +8,7 @@
 //------------------------------------------------------------------------------
 #include "core/app.h"
 #include "render/window.h"
+#include "Score.h"
 
 namespace Example
 {
@@ -23,6 +24,8 @@ public:
 	bool Open();
 	/// run app
 	void Run();
+
+    void RenderUI();
 private:
 
 	GLuint program;
@@ -30,6 +33,7 @@ private:
 	GLuint pixelShader;
 	GLuint triangle;
 	Display::Window* window;
+    Score scoreUI;
     bool LMBPressed = false;
     bool up = false;
     bool down = false;

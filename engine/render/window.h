@@ -57,6 +57,7 @@ public:
 	/// set optional UI render function
 	void SetUiRender(const std::function<void()>& func);
 
+	GLFWwindow* window;
 private:
 
 	/// static key press callback
@@ -94,7 +95,6 @@ private:
 	int32 width;
 	int32 height;
 	std::string title;
-	GLFWwindow* window;
 };
 
 //------------------------------------------------------------------------------

@@ -12,8 +12,18 @@ Tile::Tile(int coordX, int coordY, bool walkable){
     this->walkable = walkable;
 }
 
-void Tile::AddEnemy(Enemy enemy){
-    this->enemiesOnTile.push_back(enemy);
+void Tile::AddEnemy(int enemyIndex){
+    this->enemiesOnTileIndex.push_back(enemyIndex);
+}
+
+int Tile::RemoveEnemy(int enemyIndex){
+    for(int i = 0; i < this->enemiesOnTileIndex.size(); i++){
+        if(this->enemiesOnTileIndex[i] == enemyIndex){
+            this->enemiesOnTileIndex.erase(this->enemiesOnTileIndex.begin() + i);
+            return 0;
+        }
+    }
+    return -1;
 }
 
 void Tile::SetGNode(std::shared_ptr<GraphicsNode> gNode){

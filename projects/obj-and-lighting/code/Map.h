@@ -11,10 +11,11 @@ class Tile
     std::shared_ptr<GraphicsNode> gNode;
     int width, height;
     bool walkable;
-    std::vector<Enemy> enemiesOnTile;
+    std::vector<int> enemiesOnTileIndex;
 
     Tile(int coordX, int coordY, bool walkable);
-    void AddEnemy(Enemy enemy);
+    void AddEnemy(int enemyIndex);
+    int RemoveEnemy(int enemyIndex);
     void SetGNode(std::shared_ptr<GraphicsNode> gNode);
     int GetNeighbourIndex(int nr);
 };

@@ -326,10 +326,12 @@ ExampleApp::Run()
         //get a consistent frame rate
         auto elapsed = std::chrono::high_resolution_clock::now() - start;
         long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
-        if (microseconds < 33333) // 30 fps
+        if (microseconds < 33333){ // 30 fps
             usleep(33333 - microseconds);
-        
-        printf("game loop delay (µs): %f\n", 1000000 / (float)(33333 - microseconds));
+            printf("FPS: %i\n", 1000000 / (float)(33333));
+        }else{
+            printf("FPS: %i\n", 1000000 / microseconds);
+        }
 	}
 }
 

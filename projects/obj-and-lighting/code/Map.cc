@@ -64,7 +64,7 @@ void Map::InitTiles(const char* vShaderFile, const char* pShaderFile, const char
 
 void Map::Draw(Matrix cameraVPMatrix){
     for(int i = 0; i < 16*16; i++){
-        this->tiles[i]->gNode->Draw(cameraVPMatrix, PositionMat(tiles[i]->pos));
+        this->tiles[i]->gNode->Draw(cameraVPMatrix, PositionMat(tiles[i]->pos + Vector(0.5f, 0, 0.5f)));
     }
 }
 

@@ -1,11 +1,7 @@
 #pragma once
 #include "core/mathLib.h"
 #include "render/GraphicsNode.h"
-#include "entity.h"
-#include "enemy.h"
 #include <vector>
-#include <map>
-#include <unordered_map>
 
 class Tile
 {

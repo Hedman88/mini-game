@@ -1,3 +1,4 @@
+#include "config.h"
 #include "PointLightNode.h"
 
 PointLightNode::PointLightNode(Vector position, Vector colorRGBA, float strength){

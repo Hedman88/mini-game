@@ -1,3 +1,4 @@
+#include "config.h"
 #include "GraphicsNode.h"
 #include <cstring>
 

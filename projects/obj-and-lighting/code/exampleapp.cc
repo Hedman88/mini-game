@@ -23,7 +23,6 @@
 #endif
 #include <ctime>
 #include <chrono>
-#include "unistd.h"
 #include "entity.h"
 #include "enemy.h"
 #include "player.h"
@@ -312,22 +311,22 @@ ExampleApp::Run()
         // modelPos = modelPos + moveInput;
 
         // The light node sends up its values to the meshes shader program
-        lightNode.GiveLight(camera.GetPos());
-        
-        pl.gNode->Draw(camera.GetVPMatrix(), PositionMat(modelPos) * RotationY(mouseRot));
+        //lightNode.GiveLight(camera.GetPos());
+        //
+        //pl.gNode->Draw(camera.GetVPMatrix(), PositionMat(modelPos) * RotationY(mouseRot));
+		//
+        //lightNode.Draw(camera.GetVPMatrix());
 
-        lightNode.Draw(camera.GetVPMatrix());
-
-        for (size_t i = 0; i < enemies.size(); i++)
-        {
-            enemies[i].graphicNode->Draw(camera.GetVPMatrix(), PositionMat(enemies[i].position) * firingRotation);
-        }
-
-        // bulletNode.Draw(camera.GetVPMatrix(), PositionMat(en.position) * firingRotation);
-        map.Draw(camera.GetVPMatrix());
-
-        lightNode.Draw(camera.GetVPMatrix());
-
+        //for (size_t i = 0; i < enemies.size(); i++)
+        //{
+        //    enemies[i].graphicNode->Draw(camera.GetVPMatrix(), PositionMat(enemies[i].position) * firingRotation);
+        //}
+		//
+        //// bulletNode.Draw(camera.GetVPMatrix(), PositionMat(en.position) * firingRotation);
+        //map.Draw(camera.GetVPMatrix());
+		//
+        //lightNode.Draw(camera.GetVPMatrix());
+		//
 		this->window->SwapBuffers();
 
         //get a consistent frame rate
@@ -335,7 +334,7 @@ ExampleApp::Run()
         long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
         printf("FPS: %f\n", 1000000 / (float)microseconds);
         if (microseconds < 33333){ // 30 fps
-            usleep(33333 - microseconds);
+            //usleep(33333 - microseconds);
             printf("FPS: %f\n", 1000000 / (float)(33333));
         }else{
             printf("FPS: %f\n", 1000000 / (float)microseconds);
@@ -357,6 +356,51 @@ ExampleApp::RenderUI()
 		{
 		}
 		// close window
+		ImGui::End();
+
+		ImGui::SetNextWindowPos({ 0,0 }, ImGuiCond_Always);
+		ImGui::SetNextWindowSize(ImGui::GetMainViewport()->Size, ImGuiCond_Always);
+		ImGui::Begin("invis_wnd", &show,
+			ImGuiWindowFlags_NoBackground |
+			ImGuiWindowFlags_NoMove |
+			ImGuiWindowFlags_NoDecoration |
+			ImGuiWindowFlags_NoInputs |
+			ImGuiWindowFlags_NoNav
+		);
+
+		static float x = -2.0f;
+		x += 0.005f;
+		auto size = ImGui::GetMainViewport()->Size;
+		ImGui::SetCursorPos({ (sinf(x) + 1.1f) * 0.2f * size.x, 0.9f * size.y });
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0.4, 0.3, 1));
+		ImGui::TextUnformatted("This is a free trial of ImGui. Please purchase a license to get the full version!");
+		ImGui::PopStyleColor();
+
+		/*
+		// Example for projecting text from worldspace into screenspace
+		Math::vec4 vec = Vector(0, 1, -2, 1);
+		// transform point into canonical view volume (normalized device coordinates)
+		Math::vec4 ndc = cam->viewProjection * vec;
+		// perspective divide
+		ndc /= Math::vec4(ndc.w);
+
+		if (ndc.z <= 1) // only render in front of camera
+		{
+			Math::vec2 cursorPos = { ndc.x, ndc.y };
+			// Move cursor pos into screenspace coordinates (0 -> screen width , etc.)
+			cursorPos += {1.0f, 1.0f};
+			cursorPos *= 0.5f;
+			cursorPos.y = 1.0f - cursorPos.y; // invert y axis
+			cursorPos.x *= ImGui::GetWindowWidth();
+			cursorPos.y *= ImGui::GetWindowHeight();
+			cursorPos.x -= ImGui::CalcTextSize(cmd.text.AsCharPtr()).x / 2.0f; // center text
+			ImGui::SetCursorPos({ cursorPos.x, cursorPos.y });
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1,0.4,0.3,1));
+			ImGui::TextUnformatted("Hello world");
+			ImGui::PopStyleColor();
+		}
+		*/
+
 		ImGui::End();
 	}
 }

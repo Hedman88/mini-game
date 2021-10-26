@@ -1,5 +1,4 @@
 #pragma once
-#include "render/stb_image.h"
 #include "GL/glew.h"
 
 class TextureResource

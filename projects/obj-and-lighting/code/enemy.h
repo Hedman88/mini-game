@@ -8,7 +8,6 @@
 struct Enemy : Entity
 {
     float moveSpeed = 0.1f;
-    Vector velocity;
     GraphicsNode* graphicNode;
 public:
     void MoveTowardsPlayer(Player* player);

@@ -175,7 +175,7 @@ ExampleApp::Run()
 	Camera camera = Camera(90, width, height, 0.001, 1000);
     
     // The additive position vector for the model
-    Vector modelPos = Vector(0,0,0,1);
+    Vector modelPos = Vector(1.5f, 0, 1.5f ,1.f);
 
     const int shootingRate = 1; // coolDown effect
     int shootingTimer; // in seconds currently
@@ -206,13 +206,20 @@ ExampleApp::Run()
         enemies[i].graphicNode->InitNode("", "", texturePath);
         enemies[i].graphicNode->SetSR(gNode.GetSR());
     }
-
+	Vector temp;
 
 	while (this->window->IsOpen())
 	{
         auto start = std::chrono::high_resolution_clock::now();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		this->window->Update();
+
+		temp = Vector(this->right - this->left, 0, this->down - this->up);
+		if (temp.Length() != 0.f)
+			temp.Normalize();
+		temp = temp * pl.moveSpeed;
+		modelPos = modelPos + temp;
+		pl.position = modelPos;
 
         GLFWgamepadstate state;
         if(glfwGetGamepadState(GLFW_JOYSTICK_1, &state)){
@@ -228,6 +235,7 @@ ExampleApp::Run()
             //up is -1
             //down is 1
             //right is 1
+			
             
 
             //check if the axis input is significant
@@ -307,16 +315,16 @@ ExampleApp::Run()
         // The light node sends up its values to the meshes shader program
         lightNode.GiveLight(camera.GetPos());
         
-        pl.gNode->Draw(camera.GetVPMatrix(), PositionMat(modelPos) * RotationY(mouseRot));
+        pl.gNode->Draw(camera.GetVPMatrix(), PositionMat(pl.position) * RotationY(mouseRot));
 
         lightNode.Draw(camera.GetVPMatrix());
 
         for (size_t i = 0; i < enemies.size(); i++)
         {
-            enemies[i].graphicNode->Draw(camera.GetVPMatrix(), PositionMat(enemies[i].position) * firingRotation);
+			std::cout << atanf((pl.position.x - enemies[0].position.x) / (pl.position.y - enemies[0].position.y)) << std::endl;
+            enemies[i].graphicNode->Draw(camera.GetVPMatrix(), PositionMat(enemies[i].position) * RotationY(atanf(float(pl.position.x - enemies[i].position.x) / float(pl.position.y - enemies[i].position.y))));
         }
 
-        // bulletNode.Draw(camera.GetVPMatrix(), PositionMat(en.position) * firingRotation);
         map.Draw(camera.GetVPMatrix());
 
         lightNode.Draw(camera.GetVPMatrix());
@@ -329,7 +337,7 @@ ExampleApp::Run()
         if (microseconds < 33333) // 30 fps
             usleep(33333 - microseconds);
         
-        printf("game loop delay (µs): %f\n", 1000000 / (float)(33333 - microseconds));
+        // printf("game loop delay (µs): %f\n", 1000000 / (float)(33333 - microseconds));
 	}
 }
 

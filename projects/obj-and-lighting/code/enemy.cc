@@ -40,8 +40,9 @@ void Enemy::SpawnEnemies(std::vector<Enemy>* enemies, unsigned int waves, const 
 
 void Enemy::Update(Player player)
 {
-    velocity = player.position - position;
-    if (velocity.Length())
-    velocity.Normalize();
-    position = position + velocity * moveSpeed;
+    Vector temp;
+    temp = player.position - this->position;
+    if (temp.Length())
+        temp.Normalize();
+    position = position + temp * moveSpeed;
 }

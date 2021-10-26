@@ -12,6 +12,10 @@ Tile::Tile(int coordX, int coordY, bool walkable){
     this->walkable = walkable;
 }
 
+void Tile::AddEnemy(Enemy enemy){
+    this->enemiesOnTile.push_back(enemy);
+}
+
 void Tile::SetGNode(std::shared_ptr<GraphicsNode> gNode){
     this->gNode = gNode;
 }
@@ -54,7 +58,7 @@ void Map::InitTiles(const char* vShaderFile, const char* pShaderFile, const char
         }else if(!this->tiles[i]->walkable){
             this->tiles[i]->SetGNode(gNodeWall);
         }
-        if(i != 0) this->tiles[i]->gNode->SetSR(this->tiles[0]->gNode->GetSR());
+        //if(i != 0) this->tiles[i]->gNode->SetSR(this->tiles[0]->gNode->GetSR());
     }
 }
 

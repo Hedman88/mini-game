@@ -172,11 +172,9 @@ ExampleApp::Run()
 	int width, height;
 	window->GetSize(width, height);
 	Camera camera = Camera(90, width, height, 0.001, 1000);
-    // The rotation caused by mouse held in radians
     
     // The additive position vector for the model
     Vector modelPos = Vector(0,0,0,1);
-    // How fast will the cube move?
 
     const int shootingRate = 1; // coolDown effect
     int shootingTimer; // in seconds currently
@@ -202,7 +200,7 @@ ExampleApp::Run()
     for (size_t i = 0; i < enemies.size(); i++)
     {
         enemies[i].graphicNode->SetMR(MeshResource::LoadObj(objPath));
-        enemies[i].graphicNode->InitNode(vsPath, psPath, texturePath);
+        enemies[i].graphicNode->InitNode("", "", texturePath);
         enemies[i].graphicNode->SetSR(gNode.GetSR());
     }
 

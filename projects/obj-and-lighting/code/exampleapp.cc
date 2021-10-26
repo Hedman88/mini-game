@@ -329,7 +329,7 @@ ExampleApp::Run()
         if (microseconds < 33333) // 30 fps
             usleep(33333 - microseconds);
         
-        printf("game loop delay (µs): %i\n", microseconds);
+        printf("game loop delay (µs): %f\n", 1000000 / (float)(33333 - microseconds));
 	}
 }
 

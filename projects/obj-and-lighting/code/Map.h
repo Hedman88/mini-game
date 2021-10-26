@@ -1,6 +1,7 @@
 #pragma once
 #include "core/mathLib.h"
 #include "render/GraphicsNode.h"
+#include "enemy.h"
 #include <vector>
 
 class Tile

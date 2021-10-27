@@ -5,13 +5,15 @@
 class Score
 {
     int score = 0;
-    int highScore;
+    int highScore = 0;
+    int fps = -1;
+    bool dead = false;
 
   public:
-    void InitUI(Display::Window *window);
-    void Render(Display::Window *window);
-    void Cleanup();
+    void Render();
     void IncrementScore();
+    void UploadFPS(float fps);
     void SaveScore();
     void LoadScore();
+    void ToggleGameOverScreen();
 };

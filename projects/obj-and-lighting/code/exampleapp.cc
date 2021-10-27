@@ -16,6 +16,9 @@
 #include "GLFW/glfw3.h"
 #include "imgui.h"
 
+//Linux specific
+#include <unistd.h>
+
 //mini_game
 #include <cmath>
 #ifndef M_PI
@@ -95,8 +98,12 @@ ExampleApp::Open()
     window->SetMousePressFunction([this](int32 button, int32 action, int32 mods){
         if(button == GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS){
             this->LMBPressed = true;
+            this->scoreUI.IncrementScore();
         }else if(action == GLFW_RELEASE){
             this->LMBPressed = false;
+        }
+        if(button == GLFW_MOUSE_BUTTON_2 && action == GLFW_PRESS){
+            this->scoreUI.ToggleGameOverScreen();
         }
     });
 
@@ -140,8 +147,9 @@ ExampleApp::Open()
         // set ui rendering function
 		this->window->SetUiRender([this]()
 		{
-			this->RenderUI();
+			this->scoreUI.Render();
 		});
+        this->scoreUI.LoadScore();
 
 		return true;
 	}
@@ -333,8 +341,9 @@ ExampleApp::Run()
         auto elapsed = std::chrono::high_resolution_clock::now() - start;
         long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
         printf("FPS: %f\n", 1000000 / (float)microseconds);
+        this->scoreUI.UploadFPS(1000000/(float)microseconds);
         if (microseconds < 33333){ // 30 fps
-            //usleep(33333 - microseconds);
+            usleep(33333 - microseconds);
             printf("FPS: %f\n", 1000000 / (float)(33333));
         }else{
             printf("FPS: %f\n", 1000000 / (float)microseconds);
@@ -346,36 +355,7 @@ ExampleApp::RenderUI()
 {
 	if (this->window->IsOpen())
 	{
-		bool show = true;
-		// create a new window
-		ImGui::Begin("Shader Sources", &show, ImGuiWindowFlags_NoSavedSettings);
-
-
-		// apply button
-		if (ImGui::Button("Apply"))
-		{
-		}
-		// close window
-		ImGui::End();
-
-		ImGui::SetNextWindowPos({ 0,0 }, ImGuiCond_Always);
-		ImGui::SetNextWindowSize(ImGui::GetMainViewport()->Size, ImGuiCond_Always);
-		ImGui::Begin("invis_wnd", &show,
-			ImGuiWindowFlags_NoBackground |
-			ImGuiWindowFlags_NoMove |
-			ImGuiWindowFlags_NoDecoration |
-			ImGuiWindowFlags_NoInputs |
-			ImGuiWindowFlags_NoNav
-		);
-
-		static float x = -2.0f;
-		x += 0.005f;
-		auto size = ImGui::GetMainViewport()->Size;
-		ImGui::SetCursorPos({ (sinf(x) + 1.1f) * 0.2f * size.x, 0.9f * size.y });
-		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0.4, 0.3, 1));
-		ImGui::TextUnformatted("This is a free trial of ImGui. Please purchase a license to get the full version!");
-		ImGui::PopStyleColor();
-
+        //ImGui::Begin();
 		/*
 		// Example for projecting text from worldspace into screenspace
 		Math::vec4 vec = Vector(0, 1, -2, 1);
@@ -401,7 +381,7 @@ ExampleApp::RenderUI()
 		}
 		*/
 
-		ImGui::End();
+		//ImGui::End();
 	}
 }
 } // namespace Example

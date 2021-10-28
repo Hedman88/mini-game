@@ -12,7 +12,7 @@ struct Enemy : Entity
     GraphicsNode* graphicNode;
 public:
     void MoveTowardsPlayer(Player* player);
-    static void SpawnEnemies(std::vector<Enemy>* enmemies, unsigned int waves, const unsigned int width, const unsigned int height);
+    static void SpawnEnemies(std::vector<Enemy>* enemies, unsigned int waves, const unsigned int width, const unsigned int height);
 
     void Update(Player player);
     Enemy(Vector position);

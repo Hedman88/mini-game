@@ -17,7 +17,9 @@ SET(files_render_display
     GraphicsNode.h
     GraphicsNode.cc
     PointLightNode.h
-    PointLightNode.cc)
+    PointLightNode.cc
+    Debug.h
+    Debug.cc)
 SOURCE_GROUP("display" FILES ${files_render_display})
 
 

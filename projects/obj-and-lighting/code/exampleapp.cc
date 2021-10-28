@@ -30,6 +30,7 @@
 #include "enemy.h"
 #include "player.h"
 #include "Map.h"
+#include "render/Debug.h"
 
 using namespace Display;
 namespace Example
@@ -319,22 +320,24 @@ ExampleApp::Run()
         // modelPos = modelPos + moveInput;
 
         // The light node sends up its values to the meshes shader program
-        //lightNode.GiveLight(camera.GetPos());
-        //
-        //pl.gNode->Draw(camera.GetVPMatrix(), PositionMat(modelPos) * RotationY(mouseRot));
-		//
-        //lightNode.Draw(camera.GetVPMatrix());
+        lightNode.GiveLight(camera.GetPos());
+        
+        pl.gNode->Draw(camera.GetVPMatrix(), PositionMat(modelPos) * RotationY(mouseRot));
+		
+        lightNode.Draw(camera.GetVPMatrix());
 
-        //for (size_t i = 0; i < enemies.size(); i++)
-        //{
-        //    enemies[i].graphicNode->Draw(camera.GetVPMatrix(), PositionMat(enemies[i].position) * firingRotation);
-        //}
-		//
-        //// bulletNode.Draw(camera.GetVPMatrix(), PositionMat(en.position) * firingRotation);
-        //map.Draw(camera.GetVPMatrix());
-		//
-        //lightNode.Draw(camera.GetVPMatrix());
-		//
+        for (size_t i = 0; i < enemies.size(); i++)
+        {
+            enemies[i].graphicNode->Draw(camera.GetVPMatrix(), PositionMat(enemies[i].position) * firingRotation);
+        }
+		
+        // bulletNode.Draw(camera.GetVPMatrix(), PositionMat(en.position) * firingRotation);
+        map.Draw(camera.GetVPMatrix());
+		
+        lightNode.Draw(camera.GetVPMatrix());
+		
+        //Debug::DrawSquare(1, Vector(2.5,0.1,1.5), Vector(1,0,0));
+        Debug::Render(camera.GetVPMatrix());
 		this->window->SwapBuffers();
 
         //get a consistent frame rate
@@ -343,7 +346,7 @@ ExampleApp::Run()
         printf("FPS: %f\n", 1000000 / (float)microseconds);
         this->scoreUI.UploadFPS(1000000/(float)microseconds);
         if (microseconds < 33333){ // 30 fps
-            usleep(33333 - microseconds);
+            //usleep(33333 - microseconds);
             printf("FPS: %f\n", 1000000 / (float)(33333));
         }else{
             printf("FPS: %f\n", 1000000 / (float)microseconds);

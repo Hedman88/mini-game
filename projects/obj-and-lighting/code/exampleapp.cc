@@ -15,6 +15,7 @@
 #include "render/stb_image.h"
 #include "GLFW/glfw3.h"
 #include "imgui.h"
+#include "render/Debug.h"
 
 //Linux specific
 #include <unistd.h>
@@ -30,7 +31,7 @@
 #include "enemy.h"
 #include "player.h"
 #include "Map.h"
-#include "render/Debug.h"
+#include "Ray.h"
 
 using namespace Display;
 namespace Example
@@ -190,23 +191,15 @@ ExampleApp::Run()
 	window->GetSize(width, height);
 	Camera camera = Camera(90, width, height, 0.001, 1000);
     
-    // The additive position vector for the model
-    Vector modelPos = Vector(0,0,0,1);
-
-    const int shootingRate = 1; // coolDown effect
-    int shootingTimer; // in seconds currently
-    
     //stores the players direction and position when LMBPressed = true
     Matrix firingRotation;
     Vector bulletTrailStart;
     
     camera.SetRot(RotationX(M_PI / 2.f));
     window->GetSize(windowWidth, windowHeight);
-    windowWidth >>= 1;
-    windowHeight >>= 1;
 
     Player pl;
-    pl.position = modelPos;
+    pl.position = Vector(0,0,0,1);
     pl.radius = 0.2f;
     pl.gNode = &gNode;
     const float CONTROLLER_DEADZONE = 0.1f;
@@ -237,7 +230,8 @@ ExampleApp::Run()
             }
             if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] > -0.5f)
             {
-                // firing at enenmy
+                // firing at enemy
+                pl.Shoot();
             }
             //left is -1
             //up is -1
@@ -249,47 +243,43 @@ ExampleApp::Run()
             
 
             //right
-            if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] > -.5f ||
-                (state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] > CONTROLLER_DEADZONE &&
+            if ((state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] > CONTROLLER_DEADZONE &&
                 map.GetTile(int(pl.position.x + pl.radius / 2), int(pl.position.z))->walkable))
             {   
-                modelPos.x += state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] * pl.moveSpeed;
+                pl.position.x += state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] * pl.moveSpeed;
             }
 
             //left
-            if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] > -.5f ||
-                (state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] < -CONTROLLER_DEADZONE &&
+            if ((state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] < -CONTROLLER_DEADZONE &&
                 map.GetTile(int(pl.position.x - pl.radius), int(pl.position.z))->walkable))
             {
-                modelPos.x += state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] * pl.moveSpeed;
+                pl.position.x += state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] * pl.moveSpeed;
             }
 
-
             // down
-            if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] > -.5f ||
-                (state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] > CONTROLLER_DEADZONE &&
+            if ((state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] > CONTROLLER_DEADZONE &&
                 map.GetTile(int(pl.position.x), int(pl.position.z + pl.radius / 2))->walkable))
             {   
-                modelPos.z += state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] * pl.moveSpeed;
+                pl.position.z += state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] * pl.moveSpeed;
             }
             
             //up
-            if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] > -.5f ||
-                (state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] < -CONTROLLER_DEADZONE &&
+            if ((state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] < -CONTROLLER_DEADZONE &&
                 map.GetTile(int(pl.position.x), int(pl.position.z - pl.radius))->walkable))
             {
-                modelPos.z += state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] * pl.moveSpeed;
+                pl.position.z += state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] * pl.moveSpeed;
             }
 
             if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X] != 0.f)
             {
-                if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y] > 0.f)
-                    this->mouseRot = atanf(state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X] / state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y]);
-                else if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y < -0.f])
-                    this->mouseRot = atanf(state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X] / state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y]) - M_PI;
+                if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y] > 0.f){
+                    pl.aimDir = Vector(state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X], 0, state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y]);
+                    pl.rotation = atanf(pl.aimDir.x / pl.aimDir.z);
+                }else if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y] < -0.f){
+                    pl.aimDir = Vector(state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X], 0, state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y]);
+                    pl.rotation = atanf(pl.aimDir.x / pl.aimDir.z) - M_PI;
+                }
             }
-
-            pl.position = modelPos;
 
             // map.GetTile((int)pl.position.x, (int)pl.position.z);
             // printf("tilePos: (%f, %f)\n", pl.position.x, pl.position.z);
@@ -311,18 +301,18 @@ ExampleApp::Run()
             
         }
         
-        camera.SetPos(modelPos * -1.f);
+        camera.SetPos(pl.position * -1.f);
 
-        // Vector moveInput(this->right - this->left, 0, this->down - this->up);
-        // if (moveInput.Length())
-        //     moveInput.Normalize();
-        // moveInput = moveInput * moveSpeed;
-        // modelPos = modelPos + moveInput;
+        Vector moveInput(this->right - this->left, 0, this->down - this->up);
+        if (moveInput.Length())
+            moveInput.Normalize();
+        moveInput = moveInput * pl.moveSpeed;
+        pl.position = pl.position + moveInput;
 
         // The light node sends up its values to the meshes shader program
         lightNode.GiveLight(camera.GetPos());
         
-        pl.gNode->Draw(camera.GetVPMatrix(), PositionMat(modelPos) * RotationY(mouseRot));
+        pl.gNode->Draw(camera.GetVPMatrix(), PositionMat(pl.position) * RotationY(pl.rotation));
 		
         lightNode.Draw(camera.GetVPMatrix());
 

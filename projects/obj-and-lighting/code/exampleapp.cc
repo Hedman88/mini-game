@@ -15,6 +15,11 @@
 #include "render/stb_image.h"
 #include "GLFW/glfw3.h"
 
+// Linux specific
+#ifdef __linux__
+#include <unistd.h>
+#endif
+
 //mini_game
 #include <cmath>
 #ifndef M_PI
@@ -22,7 +27,6 @@
 #endif
 #include <ctime>
 #include <chrono>
-#include "unistd.h"
 #include "entity.h"
 #include "enemy.h"
 #include "player.h"
@@ -186,8 +190,6 @@ ExampleApp::Run()
     
     camera.SetRot(RotationX(M_PI / 2.f));
     window->GetSize(windowWidth, windowHeight);
-    windowWidth >>= 1;
-    windowHeight >>= 1;
 
     Player pl;
     pl.position = modelPos;
@@ -299,7 +301,20 @@ ExampleApp::Run()
             }
             else
             {
-                enemies[i].Update(pl);
+                if (pl.position.x - enemies[i].position.x > 0.f && // player is right of the enemy, so the enemies attempts to move right
+                map.GetTile(int(enemies[i].position.x + enemies[i].radius / 2), int(enemies[i].position.z))->walkable)
+                    enemies[i].Update(pl);
+                
+                if (pl.position.x - enemies[i].position.x < 0.f && // player is left of the enemy, so the enemies attempts to move left
+                map.GetTile(int(enemies[i].position.x - enemies[i].radius), int(enemies[i].position.z))->walkable)
+                    enemies[i].Update(pl);
+
+                if (pl.position.z - enemies[i].position.z > 0.f && // player is under of the enemy, so the enemies must move up
+                map.GetTile(int(enemies[i].position.x), int(enemies[i].position.z + enemies[i].radius / 2))->walkable)
+                    enemies[i].Update(pl);
+                
+                if (pl.position.z - enemies[i].position.z < 0.f && // player is over of the enemy, so the enemies must move down
+                map.GetTile(int(enemies[i].position.x), int(enemies[i].position.z - enemies[i].radius))->walkable)
             }
             
         }

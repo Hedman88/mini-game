@@ -31,8 +31,8 @@ void Enemy::SpawnEnemies(std::vector<Enemy>* enemies, unsigned int waves, const 
 
     for (size_t i = 0; i < 5 + (int)(waves * 1.09f); i++)
     {
-        int x = rand() % width, y = rand() % height;
-        Vector position = Vector(x, y, 0);
+        int x = rand() % width, z = rand() % height;
+        Vector position = Vector(x, 0, z);
         Enemy en(position);
         enemies->push_back(en);
     }

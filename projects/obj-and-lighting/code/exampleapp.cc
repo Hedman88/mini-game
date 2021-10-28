@@ -289,7 +289,7 @@ ExampleApp::Run()
         {
             if ((pl.position - enemies[i].position).Length() < pl.radius)
             {
-                //printf("GAME OVER!\n");
+                scoreUI.ToggleGameOverScreen();
                 //this->window->Close();
                 //enemies[i].position = Vector(0, 0, -700);
                 //waves++;

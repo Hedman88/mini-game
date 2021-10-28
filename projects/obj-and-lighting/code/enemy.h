@@ -7,7 +7,7 @@
 
 struct Enemy : Entity
 {
-    float moveSpeed = 0.1f;
+    float moveSpeed = 0.01f;
     Vector velocity;
     GraphicsNode* graphicNode;
 public:

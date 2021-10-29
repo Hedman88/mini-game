@@ -231,6 +231,7 @@ ExampleApp::Run()
             if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] > -0.5f)
             {
                 // firing at enemy
+                std::cout << "PRESSED BUTTON" << std::endl;
                 pl.Shoot(&map);
             }
             //left is -1
@@ -332,14 +333,7 @@ ExampleApp::Run()
         //get a consistent frame rate
         auto elapsed = std::chrono::high_resolution_clock::now() - start;
         long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
-        printf("FPS: %f\n", 1000000 / (float)microseconds);
         this->scoreUI.UploadFPS(1000000/(float)microseconds);
-        if (microseconds < 33333){ // 30 fps
-            //usleep(33333 - microseconds);
-            printf("FPS: %f\n", 1000000 / (float)(33333));
-        }else{
-            printf("FPS: %f\n", 1000000 / (float)microseconds);
-        }
 	}
 }
 void

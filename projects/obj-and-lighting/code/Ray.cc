@@ -8,10 +8,12 @@ Ray::Ray(Vector position, Vector direction, int range){
 }
 
 Ray::Ray(Vector position, Vector direction, int range, Map* map){
+    std::cout << "BEGIN RAY" << std::endl;
     direction.Normalize();
+    direction.Print();
     Vector endPos = position + (direction * range);
     Debug::DrawLine(position, endPos, Vector(0,1,0));
-
+    std::cout << "SHOOTING" << std::endl;
     Vector currentPos = position;
     while(range > (position - currentPos).Length()){
         std::shared_ptr<Tile> tile = map->GetTile((int)currentPos.x, (int)currentPos.z);

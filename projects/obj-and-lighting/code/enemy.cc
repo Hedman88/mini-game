@@ -1,5 +1,6 @@
 #include "enemy.h"
 #include "Map.h"
+#include "Score.h"
 #include <ctime>
 #include <cmath>
 
@@ -11,12 +12,10 @@ Enemy::Enemy(Vector position)
 
 Enemy::~Enemy()
 {
-    Die();
-}
-
-void Enemy::Die()
-{
-    // score
+    if (score != nullptr)
+    {
+        score->IncrementScore();
+    }
 }
 
 // spawn waves onto map

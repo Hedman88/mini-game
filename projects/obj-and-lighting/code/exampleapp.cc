@@ -227,13 +227,6 @@ ExampleApp::Run()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		this->window->Update();
 
-		temp = Vector(this->right - this->left, 0, this->down - this->up);
-		if (temp.Length() != 0.f)
-			temp.Normalize();
-		temp = temp * pl.moveSpeed;
-		modelPos = modelPos + temp;
-		pl.position = modelPos;
-
         GLFWgamepadstate state;
         if(glfwGetGamepadState(GLFW_JOYSTICK_1, &state)){
             if (state.buttons[GLFW_GAMEPAD_BUTTON_START])
@@ -242,8 +235,6 @@ ExampleApp::Run()
             }
             if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] > -0.5f)
             {
-                // firing at enemy
-                std::cout << "PRESSED BUTTON" << std::endl;
                 pl.Shoot(&map);
             }
             //left is -1

@@ -1,8 +1,10 @@
 #pragma once
 #include "render/GraphicsNode.h"
 #include "entity.h"
+#include <vector>
 
 class Map;
+class Enemy;
 
 struct Player : Entity
 {
@@ -16,5 +18,5 @@ struct Player : Entity
 public:
     Player();
     ~Player();
-    void Shoot(Map* map);
+    void Shoot(Map* map, std::vector<Enemy>* enemies);
 };

@@ -235,7 +235,8 @@ ExampleApp::Run()
             }
             if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] > -0.5f)
             {
-                pl.Shoot(&map);
+                // firing at enemy
+                pl.Shoot(&map, &enemies);
             }
             //left is -1
             //up is -1
@@ -375,7 +376,7 @@ ExampleApp::Run()
         Debug::Render(camera.GetVPMatrix());
 		this->window->SwapBuffers();
 
-        //get a consistent frame rate
+        // Calculate framerate
         auto elapsed = std::chrono::high_resolution_clock::now() - start;
         long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
         this->scoreUI.UploadFPS(1000000/(float)microseconds);

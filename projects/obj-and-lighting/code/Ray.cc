@@ -7,21 +7,21 @@ Ray::Ray(Vector position, Vector direction, int range){
     Debug::DrawLine(position, endPos, Vector(0,0,1));
 }
 
-Ray::Ray(Vector position, Vector direction, int range, Map* map){
-    std::cout << "BEGIN RAY" << std::endl;
+Ray::Ray(Vector position, Vector direction, int range, Map* map, std::vector<Enemy>* enemies){
     direction.Normalize();
-    direction.Print();
     Vector endPos = position + (direction * range);
     Debug::DrawLine(position, endPos, Vector(0,1,0));
-    std::cout << "SHOOTING" << std::endl;
     Vector currentPos = position;
     while(range > (position - currentPos).Length()){
         std::shared_ptr<Tile> tile = map->GetTile((int)currentPos.x, (int)currentPos.z);
+        if(!tile->walkable){
+            break;
+        }
         tile->debugMode = true;
         if(LookForEnemies(tile)){
-            CheckEnemyIntersection(position, direction, tile);
+            CheckEnemyIntersection(position, direction, tile, enemies);
         }
-        currentPos = currentPos + direction;
+        currentPos = currentPos + direction*0.1f;
     }
 }
 
@@ -33,6 +33,6 @@ bool Ray::LookForEnemies(std::shared_ptr<Tile> tile){
     }
 }
 
-bool Ray::CheckEnemyIntersection(Vector position, Vector direction, std::shared_ptr<Tile> tile){
+bool Ray::CheckEnemyIntersection(Vector position, Vector direction, std::shared_ptr<Tile> tile, std::vector<Enemy>* enemies){
     return false;
 }

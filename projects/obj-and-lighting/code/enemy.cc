@@ -11,10 +11,13 @@ Enemy::Enemy(Vector position)
 
 Enemy::~Enemy()
 {
-    
+    Die();
 }
 
-
+void Enemy::Die()
+{
+    // score
+}
 
 // spawn waves onto map
 void Enemy::SpawnEnemies(std::vector<Enemy>* enemies, Map* map, unsigned int waves, const unsigned int width, const unsigned int height)

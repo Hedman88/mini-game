@@ -17,5 +17,6 @@ public:
 
     void Update(Player player);
     Enemy(Vector position);
+    void Die();
     ~Enemy();
 };

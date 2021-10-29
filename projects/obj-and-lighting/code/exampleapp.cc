@@ -106,7 +106,6 @@ ExampleApp::Open()
 
     window->SetMouseMoveFunction([this](float64 x, float64 y)
     {
-        // std::cout << x << " " << y << std::endl;
         // float aimAngle;
         // if (x <= windowWidth && y <= windowHeight)
         //     aimAngle = atanf(float(windowWidth - x) / float(windowHeight - y)) - M_PI;
@@ -338,6 +337,7 @@ ExampleApp::Run()
 
         lightNode.Draw(camera.GetVPMatrix());
 
+        // Draw the Enemies
         for (size_t i = 0; i < enemies.size(); i++)
         {
 			if (float(pl.position.z - enemies[i].position.z) > 0.f)
@@ -371,16 +371,17 @@ ExampleApp::Run()
         map.Draw(camera.GetVPMatrix());
 
         lightNode.Draw(camera.GetVPMatrix());
-
+        //get a consistent frame rate
+                auto elapsed = std::chrono::high_resolution_clock::now() - start;
+                long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+                if (microseconds < 33333) // 30 fps
+                    usleep(33333 - microseconds);
+                
+        // printf("game loop delay (µs): %f\n", 1000000 / (float)(33333 - microseconds));
+        
 		this->window->SwapBuffers();
 
-        //get a consistent frame rate
-        auto elapsed = std::chrono::high_resolution_clock::now() - start;
-        long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
-        if (microseconds < 33333) // 30 fps
-            usleep(33333 - microseconds);
         
-        // printf("game loop delay (µs): %f\n", 1000000 / (float)(33333 - microseconds));
 	}
 }
 

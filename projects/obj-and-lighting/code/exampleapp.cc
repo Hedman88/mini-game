@@ -231,7 +231,7 @@ ExampleApp::Run()
             if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] > -0.5f)
             {
                 // firing at enemy
-                pl.Shoot();
+                pl.Shoot(&map);
             }
             //left is -1
             //up is -1
@@ -326,7 +326,6 @@ ExampleApp::Run()
 		
         lightNode.Draw(camera.GetVPMatrix());
 		
-        //Debug::DrawSquare(1, Vector(2.5,0.1,1.5), Vector(1,0,0));
         Debug::Render(camera.GetVPMatrix());
 		this->window->SwapBuffers();
 

@@ -82,6 +82,6 @@ namespace Debug{
 	    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(float)*4));
         glDrawArrays(GL_LINES, 0, lineBuf.verticesAmount);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
-        triBuf.verticesAmount = 0;
+        lineBuf.verticesAmount = 0;
     }
 }

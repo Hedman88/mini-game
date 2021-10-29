@@ -1,5 +1,6 @@
 #include "config.h"
 #include "player.h"
+#include "Map.h"
 #include "Ray.h"
 #include <chrono>
 
@@ -14,11 +15,11 @@ Player::~Player()
     
 }
 
-void Player::Shoot(){
+void Player::Shoot(Map* map){
     auto start = std::chrono::system_clock::now().time_since_epoch();
     long int milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(start).count();
     if(shootingTime < milliseconds){
-        Ray ray(position, aimDir, range);
+        Ray ray(position, aimDir, range, map);
         shootingTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() + shootingRate;
     }
 }

@@ -12,6 +12,7 @@ class Tile
     int width, height;
     bool walkable;
     std::vector<int> enemiesOnTileIndex;
+    bool debugMode = false;
 
     Tile(int coordX, int coordY, bool walkable);
     void AddEnemy(int enemyIndex);
@@ -23,6 +24,7 @@ class Tile
 class Map
 {
     std::shared_ptr<Tile> tiles[16*16];
+    bool debugMode = true;
 
   public:
     void GenerateMap(int maxRand, int wallShare);

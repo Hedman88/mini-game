@@ -2,6 +2,8 @@
 #include "render/GraphicsNode.h"
 #include "entity.h"
 
+class Map;
+
 struct Player : Entity
 {
     float moveSpeed = 0.2f;
@@ -14,5 +16,5 @@ struct Player : Entity
 public:
     Player();
     ~Player();
-    void Shoot();
+    void Shoot(Map* map);
 };

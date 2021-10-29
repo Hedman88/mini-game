@@ -1,6 +1,7 @@
 #include "Map.h"
 #include <cstdlib>
 #include <ctime>
+#include "render/Debug.h"
 
 Tile::Tile(int coordX, int coordY, bool walkable){
     this->pos.x = coordX;
@@ -75,6 +76,12 @@ void Map::InitTiles(const char* vShaderFile, const char* pShaderFile, const char
 void Map::Draw(Matrix cameraVPMatrix){
     for(int i = 0; i < 16*16; i++){
         this->tiles[i]->gNode->Draw(cameraVPMatrix, PositionMat(tiles[i]->pos + Vector(0.5f, 0, 0.5f)));
+        if(debugMode){
+            Debug::DrawSquare(0.8, Vector(tiles[i]->pos.x + 0.5f, 0.1, tiles[i]->pos.z + 0.5f), Vector(1,0,0));
+            if(tiles[i]->debugMode){
+                Debug::DrawSquare(0.7, Vector(tiles[i]->pos.x + 0.5f, 0.2, tiles[i]->pos.z + 0.5f), Vector(0,0,1));
+            }
+        }
     }
 }
 

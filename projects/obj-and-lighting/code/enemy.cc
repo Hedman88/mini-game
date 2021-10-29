@@ -46,11 +46,20 @@ void Enemy::SpawnEnemies(std::vector<Enemy>* enemies, Map* map, unsigned int wav
     }
 }
 
-void Enemy::Update(Player player)
+void Enemy::UpdateX(Player player)
 {
     Vector temp;
     temp = player.position - this->position;
     if (temp.Length())
         temp.Normalize();
-    position = position + temp * this->moveSpeed;
+    position.x = position.x + temp.x * this->moveSpeed;
+}
+
+void Enemy::UpdateZ(Player player)
+{
+    Vector temp;
+    temp = player.position - this->position;
+    if (temp.Length())
+        temp.Normalize();
+    position.z = position.z + temp.z * this->moveSpeed;
 }

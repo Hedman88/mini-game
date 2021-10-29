@@ -18,7 +18,8 @@ struct Enemy : Entity
     void MoveTowardsPlayer(Player* player);
     static void SpawnEnemies(std::vector<Enemy>* enmemies, Map* map, unsigned int waves, const unsigned int width, const unsigned int height);
 
-    void Update(Player player);
+    void UpdateX(Player player);
+    void UpdateZ(Player player);
     Enemy(Vector position);
     ~Enemy();
 };

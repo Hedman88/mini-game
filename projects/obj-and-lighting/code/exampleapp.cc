@@ -340,8 +340,32 @@ ExampleApp::Run()
 
         for (size_t i = 0; i < enemies.size(); i++)
         {
-			//std::cout << atanf((pl.position.x - enemies[0].position.x) / (pl.position.z - enemies[0].position.z)) << std::endl;
-            enemies[i].graphicNode->Draw(camera.GetVPMatrix(), PositionMat(enemies[i].position) * RotationY(atanf(float(pl.position.x - enemies[i].position.x) / float(pl.position.z - enemies[i].position.z))));
+			if (float(pl.position.z - enemies[i].position.z) > 0.f)
+            {
+                enemies[i].graphicNode->Draw(
+                    camera.GetVPMatrix(),
+                    PositionMat(enemies[i].position) *
+                    RotationY(
+                        atanf(
+                            float(pl.position.x - enemies[i].position.x) /
+                            float(pl.position.z - enemies[i].position.z))
+                            )
+                        );
+            }
+            
+            if (float(pl.position.z - enemies[i].position.z) < -0.f)
+            {
+                enemies[i].graphicNode->Draw(
+                    camera.GetVPMatrix(),
+                    PositionMat(enemies[i].position) *
+                    RotationY(
+                        atanf(
+                            float(pl.position.x - enemies[i].position.x) /
+                            float(pl.position.z - enemies[i].position.z))
+                             - M_PI
+                            )
+                        );
+            }
         }
 
         map.Draw(camera.GetVPMatrix());

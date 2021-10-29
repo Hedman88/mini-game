@@ -48,7 +48,6 @@ void Enemy::Update(Player player)
 {
     Vector temp;
     temp = player.position - this->position;
-    std::cout << "dx: " << temp.x << " dz: " << temp.z << std::endl;
     if (temp.Length())
         temp.Normalize();
     position = position + temp * moveSpeed;

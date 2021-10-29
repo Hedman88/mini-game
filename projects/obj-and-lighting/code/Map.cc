@@ -58,9 +58,9 @@ void Map::GenerateMap(int maxRand, int wallShare){
 }
 
 void Map::InitTiles(const char* vShaderFile, const char* pShaderFile, const char* roadTexture, const char* wallTexture){
-    std::shared_ptr<GraphicsNode> gNodeWalkable = std::make_shared<GraphicsNode>("assets/kenney_retroUrbanKit/Models/OBJ_format/grass.obj");
+    gNodeWalkable = std::make_shared<GraphicsNode>("assets/kenney_retroUrbanKit/Models/OBJ_format/grass.obj");
     gNodeWalkable->InitNode(vShaderFile, pShaderFile, roadTexture);
-    std::shared_ptr<GraphicsNode> gNodeWall = std::make_shared<GraphicsNode>("assets/kenney_retroUrbanKit/Models/OBJ_format/wallA_roof.obj");
+    gNodeWall = std::make_shared<GraphicsNode>("assets/kenney_retroUrbanKit/Models/OBJ_format/wallA_roof.obj");
     gNodeWall->InitNode(vShaderFile, pShaderFile, wallTexture);
 
     for(int i = 0; i < 16*16; i++){

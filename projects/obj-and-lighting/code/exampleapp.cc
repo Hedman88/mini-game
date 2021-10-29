@@ -185,6 +185,7 @@ ExampleApp::Run()
     map.GenerateMap(10, 2);
     map.InitTiles(vsPath, psPath, roadTexture, wallTexture);
     
+    
     const char* lvsPath = "engine/render/PointLightVS.ascii";
     const char* lpsPath = "engine/render/PointLightPS.ascii";
     PointLightNode lightNode(Vector(0,1,0), Vector(1,1,1,1), 1);
@@ -207,6 +208,12 @@ ExampleApp::Run()
     pl.position = Vector(0,0,0,1);
     pl.radius = 0.2f;
     pl.gNode = &gNode;
+    for (size_t i = 0; i < 16 * 16; i++)
+    {
+        // if (map.GetTile(i % 16, i / 16)->Walkable)
+        map.GetTile(i % 16, i / 16)->gNode->SetSR(pl.gNode->GetSR());
+    }
+
     const float CONTROLLER_DEADZONE = 0.1f;
 
     unsigned int waves = 1;
@@ -333,11 +340,8 @@ ExampleApp::Run()
         pl.position = pl.position + moveInput;
 
         // The light node sends up its values to the meshes shader program
-        lightNode.GiveLight(camera.GetPos());
         
         pl.gNode->Draw(camera.GetVPMatrix(), PositionMat(pl.position) * RotationY(pl.rotation));
-		
-        lightNode.Draw(camera.GetVPMatrix());
 
         // Draw the Enemies
         for (size_t i = 0; i < enemies.size(); i++)
@@ -369,8 +373,13 @@ ExampleApp::Run()
                         );
             }
         }
+
         map.Draw(camera.GetVPMatrix());
-		
+		std::cout << pl.position.x << " " << pl.position.y << " " << pl.position.z << std::endl;
+        std::cout << camera.GetPos().x << " " << camera.GetPos().y << " " << camera.GetPos().z << std::endl;
+        lightNode.SetPos(pl.position);
+        
+        lightNode.GiveLight(camera.GetPos());
         lightNode.Draw(camera.GetVPMatrix());
 		
         Debug::Render(camera.GetVPMatrix());

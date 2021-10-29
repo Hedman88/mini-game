@@ -10,6 +10,16 @@ PointLightNode::PointLightNode(Vector position, Vector colorRGBA, float strength
     this->sr.reset(new ShaderResource());
 }
 
+void PointLightNode::SetPos(const Vector posIn)
+{
+    pos = posIn;
+}
+
+Vector PointLightNode::GetPos()
+{
+    return pos;
+}
+
 void PointLightNode::InitNode(const char* vShaderFile, const char* pShaderFile){
     this->sr->LoadShaders(vShaderFile, pShaderFile);
 }

@@ -4,10 +4,10 @@
 
 struct algortihm
 {
-    static bool flooding(Map *map, unsigned int walkables, unsigned int x, unsigned int z, unsigned int walls);
+    static bool flooding(Map *map, unsigned int walkables, unsigned int x, unsigned int z);
 };
 
-unsigned int algortihm::flooding(Map *map, unsigned int walkables, unsigned int x=1, unsigned int z=1, unsigned int walls)
+unsigned int algortihm::flooding(Map *map, unsigned int walkables, unsigned int x=1, unsigned int z=1)
 {
     if (map == nullptr)
     {
@@ -17,11 +17,11 @@ unsigned int algortihm::flooding(Map *map, unsigned int walkables, unsigned int 
         return walkables;
 
     if (map->GetTile(x + 1, z)->walkable)
-        return flooding(map, walkables++, x + 1, z, walls);
+        return flooding(map, walkables++, x + 1, z);
     if (map->GetTile(x - 1, z)->walkable)
-        return flooding(map, walkables++, x - 1, z, walls);
+        return flooding(map, walkables++, x - 1, z);
     if (map->GetTile(x, z + 1)->walkable)
-        return flooding(map, walkables++, x, z + 1, walls);
+        return flooding(map, walkables++, x, z + 1);
     if (map->GetTile(x, z - 1)->walkable)
-        return flooding(map, walkables++, x, z - 1, walls);
+        return flooding(map, walkables++, x, z - 1);
 }

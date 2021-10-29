@@ -163,6 +163,7 @@ ExampleApp::Run()
 
     const char* roadTexture = "assets/kenney_retroUrbanKit/Models/OBJ_format/Textures/grass.png";
     const char* wallTexture = "assets/kenney_retroUrbanKit/Models/OBJ_format/Textures/wall.png";
+    
     Map map;
     map.GenerateMap(10, 2);
     map.InitTiles(vsPath, psPath, roadTexture, wallTexture);
@@ -200,7 +201,7 @@ ExampleApp::Run()
     unsigned int waves = 1;
     std::vector<Enemy> enemies;
 
-    Enemy::SpawnEnemies(&enemies, waves, 40, 30);
+    Enemy::SpawnEnemies(&enemies, &map, waves, 16, 16);
 
     for (size_t i = 0; i < enemies.size(); i++)
     {
@@ -301,6 +302,8 @@ ExampleApp::Run()
             }
             else
             {
+                // enemies[0].Update(pl);
+                
                 if (pl.position.x - enemies[i].position.x > 0.f && // player is right of the enemy, so the enemies attempts to move right
                 map.GetTile(int(enemies[i].position.x + enemies[i].radius / 2), int(enemies[i].position.z))->walkable)
                     enemies[i].Update(pl);
@@ -315,6 +318,7 @@ ExampleApp::Run()
                 
                 if (pl.position.z - enemies[i].position.z < 0.f && // player is over of the enemy, so the enemies must move down
                 map.GetTile(int(enemies[i].position.x), int(enemies[i].position.z - enemies[i].radius))->walkable)
+                    enemies[i].Update(pl);
             }
             
         }
@@ -336,8 +340,8 @@ ExampleApp::Run()
 
         for (size_t i = 0; i < enemies.size(); i++)
         {
-			std::cout << atanf((pl.position.x - enemies[0].position.x) / (pl.position.y - enemies[0].position.y)) << std::endl;
-            enemies[i].graphicNode->Draw(camera.GetVPMatrix(), PositionMat(enemies[i].position) * RotationY(atanf(float(pl.position.x - enemies[i].position.x) / float(pl.position.y - enemies[i].position.y))));
+			//std::cout << atanf((pl.position.x - enemies[0].position.x) / (pl.position.z - enemies[0].position.z)) << std::endl;
+            enemies[i].graphicNode->Draw(camera.GetVPMatrix(), PositionMat(enemies[i].position) * RotationY(atanf(float(pl.position.x - enemies[i].position.x) / float(pl.position.z - enemies[i].position.z))));
         }
 
         map.Draw(camera.GetVPMatrix());

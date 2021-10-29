@@ -17,6 +17,11 @@
 #include "imgui.h"
 #include "render/Debug.h"
 
+// Linux specific
+#ifdef __linux__
+#include <unistd.h>
+#endif
+
 //mini_game
 #include <cmath>
 #ifndef M_PI
@@ -108,7 +113,6 @@ ExampleApp::Open()
 
     window->SetMouseMoveFunction([this](float64 x, float64 y)
     {
-        // std::cout << x << " " << y << std::endl;
         // float aimAngle;
         // if (x <= windowWidth && y <= windowHeight)
         //     aimAngle = atanf(float(windowWidth - x) / float(windowHeight - y)) - M_PI;
@@ -173,6 +177,7 @@ ExampleApp::Run()
 
     const char* roadTexture = "assets/kenney_retroUrbanKit/Models/OBJ_format/Textures/grass.png";
     const char* wallTexture = "assets/kenney_retroUrbanKit/Models/OBJ_format/Textures/wall.png";
+    
     Map map;
     map.GenerateMap(10, 2);
     map.InitTiles(vsPath, psPath, roadTexture, wallTexture);
@@ -204,7 +209,7 @@ ExampleApp::Run()
     unsigned int waves = 1;
     std::vector<Enemy> enemies;
 
-    Enemy::SpawnEnemies(&enemies, waves, 40, 30);
+    Enemy::SpawnEnemies(&enemies, &map, waves, 16, 16);
 
     for (size_t i = 0; i < enemies.size(); i++)
     {
@@ -234,6 +239,7 @@ ExampleApp::Run()
             //up is -1
             //down is 1
             //right is 1
+			
             
 
             //check if the axis input is significant
@@ -293,7 +299,23 @@ ExampleApp::Run()
             }
             else
             {
-                enemies[i].Update(pl);
+                // enemies[0].Update(pl);
+                
+                if (pl.position.x - enemies[i].position.x > 0.f && // player is right of the enemy, so the enemies attempts to move right
+                map.GetTile(int(enemies[i].position.x + enemies[i].radius / 2), int(enemies[i].position.z))->walkable)
+                    enemies[i].Update(pl);
+                
+                if (pl.position.x - enemies[i].position.x < 0.f && // player is left of the enemy, so the enemies attempts to move left
+                map.GetTile(int(enemies[i].position.x - enemies[i].radius), int(enemies[i].position.z))->walkable)
+                    enemies[i].Update(pl);
+
+                if (pl.position.z - enemies[i].position.z > 0.f && // player is under of the enemy, so the enemies must move up
+                map.GetTile(int(enemies[i].position.x), int(enemies[i].position.z + enemies[i].radius / 2))->walkable)
+                    enemies[i].Update(pl);
+                
+                if (pl.position.z - enemies[i].position.z < 0.f && // player is over of the enemy, so the enemies must move down
+                map.GetTile(int(enemies[i].position.x), int(enemies[i].position.z - enemies[i].radius))->walkable)
+                    enemies[i].Update(pl);
             }
             
         }
@@ -313,12 +335,36 @@ ExampleApp::Run()
 		
         lightNode.Draw(camera.GetVPMatrix());
 
+        // Draw the Enemies
         for (size_t i = 0; i < enemies.size(); i++)
         {
-            enemies[i].graphicNode->Draw(camera.GetVPMatrix(), PositionMat(enemies[i].position) * firingRotation);
+			if (float(pl.position.z - enemies[i].position.z) > 0.f)
+            {
+                enemies[i].graphicNode->Draw(
+                    camera.GetVPMatrix(),
+                    PositionMat(enemies[i].position) *
+                    RotationY(
+                        atanf(
+                            float(pl.position.x - enemies[i].position.x) /
+                            float(pl.position.z - enemies[i].position.z))
+                            )
+                        );
+            }
+            
+            if (float(pl.position.z - enemies[i].position.z) < -0.f)
+            {
+                enemies[i].graphicNode->Draw(
+                    camera.GetVPMatrix(),
+                    PositionMat(enemies[i].position) *
+                    RotationY(
+                        atanf(
+                            float(pl.position.x - enemies[i].position.x) /
+                            float(pl.position.z - enemies[i].position.z))
+                             - M_PI
+                            )
+                        );
+            }
         }
-		
-        // bulletNode.Draw(camera.GetVPMatrix(), PositionMat(en.position) * firingRotation);
         map.Draw(camera.GetVPMatrix());
 		
         lightNode.Draw(camera.GetVPMatrix());

@@ -1,22 +1,25 @@
 #include "enemy.h"
+#include "Map.h"
+#include "Score.h"
 #include <ctime>
 #include <cmath>
 
 Enemy::Enemy(Vector position)
 {
     this->position = position;
-    this->graphicNode = new GraphicsNode();
+    this->graphicNode = std::make_shared<GraphicsNode>();
 }
 
 Enemy::~Enemy()
 {
-    
+    if (score != nullptr)
+    {
+        score->IncrementScore();
+    }
 }
 
-
-
 // spawn waves onto map
-void Enemy::SpawnEnemies(std::vector<Enemy>* enemies, unsigned int waves, const unsigned int width, const unsigned int height)
+void Enemy::SpawnEnemies(std::vector<Enemy>* enemies, Map* map, unsigned int waves, const unsigned int width, const unsigned int height)
 {
     if (enemies == nullptr)
     {
@@ -31,7 +34,12 @@ void Enemy::SpawnEnemies(std::vector<Enemy>* enemies, unsigned int waves, const 
 
     for (size_t i = 0; i < 5 + (int)(waves * 1.09f); i++)
     {
-        int x = rand() % width, z = rand() % height;
+        int x, z;
+        do
+        {
+            x = rand() % width, z = rand() % height;
+            if (map->GetTile(x, z)->walkable) break;
+        }while(true);
         Vector position = Vector(x, 0, z);
         Enemy en(position);
         enemies->push_back(en);
@@ -40,8 +48,9 @@ void Enemy::SpawnEnemies(std::vector<Enemy>* enemies, unsigned int waves, const 
 
 void Enemy::Update(Player player)
 {
-    velocity = player.position - position;
-    if (velocity.Length())
-    velocity.Normalize();
-    position = position + velocity * moveSpeed;
+    Vector temp;
+    temp = player.position - this->position;
+    if (temp.Length())
+        temp.Normalize();
+    position = position + temp * this->moveSpeed;
 }

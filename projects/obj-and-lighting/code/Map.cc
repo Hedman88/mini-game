@@ -80,6 +80,7 @@ void Map::Draw(Matrix cameraVPMatrix){
             Debug::DrawSquare(0.8, Vector(tiles[i]->pos.x + 0.5f, 0.1, tiles[i]->pos.z + 0.5f), Vector(1,0,0));
             if(tiles[i]->debugMode){
                 Debug::DrawSquare(0.7, Vector(tiles[i]->pos.x + 0.5f, 0.2, tiles[i]->pos.z + 0.5f), Vector(0,0,1));
+                tiles[i]->debugMode = false;
             }
         }
     }

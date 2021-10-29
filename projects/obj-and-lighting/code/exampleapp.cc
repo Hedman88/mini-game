@@ -307,19 +307,19 @@ ExampleApp::Run()
                 
                 if (pl.position.x - enemies[i].position.x > 0.f && // player is right of the enemy, so the enemies attempts to move right
                 map.GetTile(int(enemies[i].position.x + enemies[i].radius / 2), int(enemies[i].position.z))->walkable)
-                    enemies[i].Update(pl);
+                    enemies[i].UpdateX(pl);
                 
                 if (pl.position.x - enemies[i].position.x < 0.f && // player is left of the enemy, so the enemies attempts to move left
                 map.GetTile(int(enemies[i].position.x - enemies[i].radius), int(enemies[i].position.z))->walkable)
-                    enemies[i].Update(pl);
+                    enemies[i].UpdateX(pl);
 
                 if (pl.position.z - enemies[i].position.z > 0.f && // player is under of the enemy, so the enemies must move up
                 map.GetTile(int(enemies[i].position.x), int(enemies[i].position.z + enemies[i].radius / 2))->walkable)
-                    enemies[i].Update(pl);
+                    enemies[i].UpdateZ(pl);
                 
                 if (pl.position.z - enemies[i].position.z < 0.f && // player is over of the enemy, so the enemies must move down
                 map.GetTile(int(enemies[i].position.x), int(enemies[i].position.z - enemies[i].radius))->walkable)
-                    enemies[i].Update(pl);
+                    enemies[i].UpdateZ(pl);
             }
             if (!scoreUI.GetDead() && enemies.size() <= 0)
             {

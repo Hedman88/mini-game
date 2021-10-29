@@ -17,7 +17,7 @@
 #include "imgui.h"
 #include "render/Debug.h"
 
-// Linux specific
+//Linux specific
 #ifdef __linux__
 #include <unistd.h>
 #endif

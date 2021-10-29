@@ -52,5 +52,5 @@ void Enemy::Update(Player player)
     temp = player.position - this->position;
     if (temp.Length())
         temp.Normalize();
-    position = position + temp * moveSpeed;
+    position = position + temp * this->moveSpeed;
 }

@@ -9,8 +9,8 @@ class Score;
 class Map;
 struct Enemy : Entity
 {
-    float moveSpeed = 0.1f;
-    float radius = 0.01f;
+    float moveSpeed = 0.01f;
+    float radius = 0.1f;
     std::shared_ptr<GraphicsNode> graphicNode;
 
     Score* score;

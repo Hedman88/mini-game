@@ -14,6 +14,9 @@ class PointLightNode
     std::shared_ptr<ShaderResource> sr;
     std::shared_ptr<ShaderResource> sharedShader;
   public:
+    void SetPos(const Vector posIn);
+    Vector GetPos();
+
     PointLightNode(Vector position, Vector colorRGBA, float strength);
     void InitNode(const char* vShaderFile, const char* pShaderFile);
     void GiveLight(Vector cameraPos);

@@ -23,12 +23,14 @@ class Tile
 
 class Map
 {
-    std::shared_ptr<Tile> tiles[16*16];
-    bool debugMode = true;
+  std::shared_ptr<GraphicsNode> gNodeWalkable;
+  std::shared_ptr<GraphicsNode> gNodeWall;
+  std::shared_ptr<Tile> tiles[16*16];
+  bool debugMode = false;
 
-  public:
-    void GenerateMap(int maxRand, int wallShare);
-    void InitTiles(const char* vShaderFile, const char* pShaderFile, const char* roadTexture, const char* wallTexture);
-    void Draw(Matrix cameraVPMatrix);
-    std::shared_ptr<Tile> GetTile(int coordX, int coordY);
+public:
+  void GenerateMap(int maxRand, int wallShare);
+  void InitTiles(const char* vShaderFile, const char* pShaderFile, const char* roadTexture, const char* wallTexture);
+  void Draw(Matrix cameraVPMatrix);
+  std::shared_ptr<Tile> GetTile(int coordX, int coordY);
 };

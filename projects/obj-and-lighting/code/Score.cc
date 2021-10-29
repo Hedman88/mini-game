@@ -73,3 +73,8 @@ void Score::LoadScore(){
 void Score::ToggleGameOverScreen(){
     dead = !dead;
 }
+
+bool Score::GetDead()
+{
+    return dead;
+}

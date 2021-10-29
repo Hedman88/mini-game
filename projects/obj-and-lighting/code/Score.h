@@ -16,4 +16,5 @@ class Score
     void SaveScore();
     void LoadScore();
     void ToggleGameOverScreen();
+    bool GetDead();
 };

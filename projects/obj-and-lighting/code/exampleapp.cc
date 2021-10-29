@@ -295,9 +295,6 @@ ExampleApp::Run()
             if ((pl.position - enemies[i].position).Length() < pl.radius)
             {
                 scoreUI.ToggleGameOverScreen();
-                //this->window->Close();
-                //enemies[i].position = Vector(0, 0, -700);
-                //waves++;
             }
             else
             {
@@ -319,7 +316,11 @@ ExampleApp::Run()
                 map.GetTile(int(enemies[i].position.x), int(enemies[i].position.z - enemies[i].radius))->walkable)
                     enemies[i].Update(pl);
             }
-            
+            if (!scoreUI.GetDead() && enemies.size() <= 0)
+            {
+                waves++;
+                Enemy::SpawnEnemies(&enemies, &map, waves, 16, 16);
+            }
         }
         
         camera.SetPos(pl.position * -1.f);

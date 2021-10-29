@@ -1,3 +1,4 @@
+#include "config.h"
 #include "ShaderResource.h"
 #include <fstream>
 #include <sstream>

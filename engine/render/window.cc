@@ -4,9 +4,9 @@
 //------------------------------------------------------------------------------
 #include "config.h"
 #include "window.h"
-#include <imgui.h>
-#include "imgui_impl_glfw_gl3.h"
-#define NANOVG_GL3_IMPLEMENTATION 1
+#include "imgui.h"
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_opengl3.h"
 
 namespace Display
 {
@@ -85,9 +85,9 @@ void
 Window::StaticKeyPressCallback(GLFWwindow* win, int32 key, int32 scancode, int32 action, int32 mods)
 {
 	Window* window = (Window*)glfwGetWindowUserPointer(win);
-	if (ImGui::IsMouseHoveringAnyWindow())
+	if (ImGui::IsAnyItemHovered())
 	{
-		ImGui_ImplGlfwGL3_KeyCallback(win, key, scancode, action, mods);
+		ImGui_ImplGlfw_KeyCallback(win, key, scancode, action, mods);
 	}
 	else if (nullptr != window->keyPressCallback)
 	{
@@ -102,9 +102,9 @@ void
 Window::StaticMousePressCallback(GLFWwindow* win, int32 button, int32 action, int32 mods)
 {
 	Window* window = (Window*)glfwGetWindowUserPointer(win);
-	if (ImGui::IsMouseHoveringAnyWindow())
+	if (ImGui::IsAnyItemHovered())
 	{
-		ImGui_ImplGlfwGL3_MouseButtonCallback(win, button, action, mods);
+		ImGui_ImplGlfw_MouseButtonCallback(win, button, action, mods);
 	}
 	else if (nullptr != window->mousePressCallback)
 	{
@@ -145,9 +145,9 @@ void
 Window::StaticMouseScrollCallback(GLFWwindow* win, float64 x, float64 y)
 {
 	Window* window = (Window*)glfwGetWindowUserPointer(win);
-	if (ImGui::IsMouseHoveringAnyWindow())
+	if (ImGui::IsAnyItemHovered())
 	{
-		ImGui_ImplGlfwGL3_ScrollCallback(win, x, y);
+		ImGui_ImplGlfw_ScrollCallback(win, x, y);
 	}
 	else if (nullptr != window->mouseScrollCallback)
 	{
@@ -252,8 +252,29 @@ Window::Open()
 	glfwSetScrollCallback(this->window, Window::StaticMouseScrollCallback);
 	// setup imgui implementation
     ImGui::CreateContext();
-	ImGui_ImplGlfwGL3_Init(this->window, false);
-	glfwSetCharCallback(window, ImGui_ImplGlfwGL3_CharCallback);
+	ImGuiIO& io = ImGui::GetIO();
+	io.DisplaySize = { (float)width, (float)height };
+	io.DeltaTime = 1 / 60.0f;
+	ImGui_ImplGlfw_InitForOpenGL(this->window, false);
+	ImGui_ImplOpenGL3_Init();
+
+	/*
+	// load default font
+	ImFontConfig config;
+	config.OversampleH = 3;
+	config.OversampleV = 1;
+#if _WIN32
+	ImFont* font = io.Fonts->AddFontFromFileTTF("c:/windows/fonts/tahoma.ttf", 14, &config);
+#else
+	ImFont* font = io.Fonts->AddFontFromFileTTF("/usr/share/fonts/truetype/freefont/FreeSans.ttf", 18, &config);
+#endif
+
+	unsigned char* buffer;
+	int width, height, channels;
+	io.Fonts->GetTexDataAsRGBA32(&buffer, &width, &height, &channels);
+	*/
+
+	glfwSetCharCallback(window, ImGui_ImplGlfw_CharCallback);
 
 	// increase window count and return result
 	Window::WindowCount++;
@@ -274,7 +295,9 @@ Window::Close()
 	Window::WindowCount--;
 	if (Window::WindowCount == 0)
 	{
-		ImGui_ImplGlfwGL3_Shutdown();
+		ImGui_ImplOpenGL3_Shutdown();
+		ImGui_ImplGlfw_Shutdown();
+		ImGui::DestroyContext();
 		glfwTerminate();
 	}
 }
@@ -305,12 +328,15 @@ Window::SwapBuffers()
 {
 	if (this->window)
 	{
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
 		if (nullptr != this->uiFunc)
 		{
-			ImGui_ImplGlfwGL3_NewFrame();
 			this->uiFunc();
-			ImGui::Render();
 		}
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		glfwSwapBuffers(this->window);
 	}
 }

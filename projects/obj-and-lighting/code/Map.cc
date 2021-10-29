@@ -1,6 +1,7 @@
 #include "Map.h"
 #include <cstdlib>
 #include <ctime>
+#include "render/Debug.h"
 
 Tile::Tile(int coordX, int coordY, bool walkable){
     this->pos.x = coordX;
@@ -12,8 +13,18 @@ Tile::Tile(int coordX, int coordY, bool walkable){
     this->walkable = walkable;
 }
 
-void Tile::AddEnemy(Enemy enemy){
-    this->enemiesOnTile.push_back(enemy);
+void Tile::AddEnemy(int enemyIndex){
+    this->enemiesOnTileIndex.push_back(enemyIndex);
+}
+
+int Tile::RemoveEnemy(int enemyIndex){
+    for(int i = 0; i < this->enemiesOnTileIndex.size(); i++){
+        if(this->enemiesOnTileIndex[i] == enemyIndex){
+            this->enemiesOnTileIndex.erase(this->enemiesOnTileIndex.begin() + i);
+            return 0;
+        }
+    }
+    return -1;
 }
 
 void Tile::SetGNode(std::shared_ptr<GraphicsNode> gNode){
@@ -65,6 +76,13 @@ void Map::InitTiles(const char* vShaderFile, const char* pShaderFile, const char
 void Map::Draw(Matrix cameraVPMatrix){
     for(int i = 0; i < 16*16; i++){
         this->tiles[i]->gNode->Draw(cameraVPMatrix, PositionMat(tiles[i]->pos + Vector(0.5f, 0, 0.5f)));
+        if(debugMode){
+            Debug::DrawSquare(0.8, Vector(tiles[i]->pos.x + 0.5f, 0.1, tiles[i]->pos.z + 0.5f), Vector(1,0,0));
+            if(tiles[i]->debugMode){
+                Debug::DrawSquare(0.7, Vector(tiles[i]->pos.x + 0.5f, 0.2, tiles[i]->pos.z + 0.5f), Vector(0,0,1));
+                tiles[i]->debugMode = false;
+            }
+        }
     }
 }
 

@@ -17,11 +17,23 @@ ADD_SUBDIRECTORY(glfw)
 SET_TARGET_PROPERTIES(glfw PROPERTIES FOLDER "exts/glfw")
 TARGET_INCLUDE_DIRECTORIES(exts INTERFACE glfw/include)
 
-ADD_LIBRARY(imgui STATIC imgui/imgui.cpp imgui/imgui_demo.cpp imgui/imgui_draw.cpp 
-			imgui/imgui.h imgui/imgui_internal.h 
-			imgui/stb_rect_pack.h imgui/stb_textedit.h imgui/stb_truetype.h 
-			imgui/examples/opengl3_example/imgui_impl_glfw_gl3.h
-			imgui/examples/opengl3_example/imgui_impl_glfw_gl3.cpp)
+ADD_LIBRARY(imgui STATIC 
+			imgui/imgui.cpp
+			imgui/imgui_demo.cpp
+			imgui/imgui_draw.cpp
+			imgui/imgui.h
+			imgui/imgui_internal.h
+			imgui/imgui_tables.cpp
+			imgui/imgui_widgets.cpp
+			imgui/imstb_rectpack.h
+			imgui/imstb_textedit.h
+			imgui/imstb_truetype.h
+			imgui/imconfig.h
+			imgui/backends/imgui_impl_glfw.h
+			imgui/backends/imgui_impl_glfw.cpp
+			imgui/backends/imgui_impl_opengl3.h
+			imgui/backends/imgui_impl_opengl3.cpp
+			)
 
 TARGET_LINK_LIBRARIES(imgui PUBLIC exts)
 TARGET_INCLUDE_DIRECTORIES(imgui PUBLIC imgui imgui/examples/opengl3_example)

@@ -355,3 +355,5 @@ html/
 latex/
 tags
 .vscode/
+imgui.ini
+high_score.txt

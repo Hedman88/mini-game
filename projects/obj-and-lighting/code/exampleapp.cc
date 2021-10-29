@@ -14,6 +14,11 @@
 #include "core/mathLib.h"
 #include "render/stb_image.h"
 #include "GLFW/glfw3.h"
+#include "imgui.h"
+#include "render/Debug.h"
+
+//Linux specific
+#include <unistd.h>
 
 // Linux specific
 #ifdef __linux__
@@ -31,6 +36,7 @@
 #include "enemy.h"
 #include "player.h"
 #include "Map.h"
+#include "Ray.h"
 
 using namespace Display;
 namespace Example
@@ -99,8 +105,12 @@ ExampleApp::Open()
     window->SetMousePressFunction([this](int32 button, int32 action, int32 mods){
         if(button == GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS){
             this->LMBPressed = true;
+            this->scoreUI.IncrementScore();
         }else if(action == GLFW_RELEASE){
             this->LMBPressed = false;
+        }
+        if(button == GLFW_MOUSE_BUTTON_2 && action == GLFW_PRESS){
+            this->scoreUI.ToggleGameOverScreen();
         }
     });
 
@@ -139,6 +149,14 @@ ExampleApp::Open()
 		glBindBuffer(GL_ARRAY_BUFFER, this->triangle);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(buf), buf, GL_STATIC_DRAW);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+        // set ui rendering function
+		this->window->SetUiRender([this]()
+		{
+			this->scoreUI.Render();
+		});
+        this->scoreUI.LoadScore();
+
 		return true;
 	}
 	return false;
@@ -178,12 +196,6 @@ ExampleApp::Run()
 	window->GetSize(width, height);
 	Camera camera = Camera(90, width, height, 0.001, 1000);
     
-    // The additive position vector for the model
-    Vector modelPos = Vector(1.5f, 0, 1.5f ,1.f);
-
-    const int shootingRate = 1; // coolDown effect
-    int shootingTimer; // in seconds currently
-    
     //stores the players direction and position when LMBPressed = true
     Matrix firingRotation;
     Vector bulletTrailStart;
@@ -192,7 +204,7 @@ ExampleApp::Run()
     window->GetSize(windowWidth, windowHeight);
 
     Player pl;
-    pl.position = modelPos;
+    pl.position = Vector(0,0,0,1);
     pl.radius = 0.2f;
     pl.gNode = &gNode;
     const float CONTROLLER_DEADZONE = 0.1f;
@@ -208,7 +220,6 @@ ExampleApp::Run()
         enemies[i].graphicNode->InitNode("", "", texturePath);
         enemies[i].graphicNode->SetSR(gNode.GetSR());
     }
-	Vector temp;
 
 	while (this->window->IsOpen())
 	{
@@ -231,7 +242,9 @@ ExampleApp::Run()
             }
             if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] > -0.5f)
             {
-                // firing at enenmy
+                // firing at enemy
+                std::cout << "PRESSED BUTTON" << std::endl;
+                pl.Shoot(&map);
             }
             //left is -1
             //up is -1
@@ -244,47 +257,43 @@ ExampleApp::Run()
             
 
             //right
-            if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] > -.5f ||
-                (state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] > CONTROLLER_DEADZONE &&
+            if ((state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] > CONTROLLER_DEADZONE &&
                 map.GetTile(int(pl.position.x + pl.radius / 2), int(pl.position.z))->walkable))
             {   
-                modelPos.x += state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] * pl.moveSpeed;
+                pl.position.x += state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] * pl.moveSpeed;
             }
 
             //left
-            if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] > -.5f ||
-                (state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] < -CONTROLLER_DEADZONE &&
+            if ((state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] < -CONTROLLER_DEADZONE &&
                 map.GetTile(int(pl.position.x - pl.radius), int(pl.position.z))->walkable))
             {
-                modelPos.x += state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] * pl.moveSpeed;
+                pl.position.x += state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] * pl.moveSpeed;
             }
 
-
             // down
-            if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] > -.5f ||
-                (state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] > CONTROLLER_DEADZONE &&
+            if ((state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] > CONTROLLER_DEADZONE &&
                 map.GetTile(int(pl.position.x), int(pl.position.z + pl.radius / 2))->walkable))
             {   
-                modelPos.z += state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] * pl.moveSpeed;
+                pl.position.z += state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] * pl.moveSpeed;
             }
             
             //up
-            if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] > -.5f ||
-                (state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] < -CONTROLLER_DEADZONE &&
+            if ((state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] < -CONTROLLER_DEADZONE &&
                 map.GetTile(int(pl.position.x), int(pl.position.z - pl.radius))->walkable))
             {
-                modelPos.z += state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] * pl.moveSpeed;
+                pl.position.z += state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] * pl.moveSpeed;
             }
 
             if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X] != 0.f)
             {
-                if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y] > 0.f)
-                    this->mouseRot = atanf(state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X] / state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y]);
-                else if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y < -0.f])
-                    this->mouseRot = atanf(state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X] / state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y]) - M_PI;
+                if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y] > 0.f){
+                    pl.aimDir = Vector(state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X], 0, state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y]);
+                    pl.rotation = atanf(pl.aimDir.x / pl.aimDir.z);
+                }else if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y] < -0.f){
+                    pl.aimDir = Vector(state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X], 0, state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y]);
+                    pl.rotation = atanf(pl.aimDir.x / pl.aimDir.z) - M_PI;
+                }
             }
-
-            pl.position = modelPos;
 
             // map.GetTile((int)pl.position.x, (int)pl.position.z);
             // printf("tilePos: (%f, %f)\n", pl.position.x, pl.position.z);
@@ -294,7 +303,7 @@ ExampleApp::Run()
         {
             if ((pl.position - enemies[i].position).Length() < pl.radius)
             {
-                //printf("GAME OVER!\n");
+                scoreUI.ToggleGameOverScreen();
                 //this->window->Close();
                 //enemies[i].position = Vector(0, 0, -700);
                 //waves++;
@@ -322,19 +331,19 @@ ExampleApp::Run()
             
         }
         
-        camera.SetPos(modelPos * -1.f);
+        camera.SetPos(pl.position * -1.f);
 
-        // Vector moveInput(this->right - this->left, 0, this->down - this->up);
-        // if (moveInput.Length())
-        //     moveInput.Normalize();
-        // moveInput = moveInput * moveSpeed;
-        // modelPos = modelPos + moveInput;
+        Vector moveInput(this->right - this->left, 0, this->down - this->up);
+        if (moveInput.Length())
+            moveInput.Normalize();
+        moveInput = moveInput * pl.moveSpeed;
+        pl.position = pl.position + moveInput;
 
         // The light node sends up its values to the meshes shader program
         lightNode.GiveLight(camera.GetPos());
         
-        pl.gNode->Draw(camera.GetVPMatrix(), PositionMat(pl.position) * RotationY(mouseRot));
-
+        pl.gNode->Draw(camera.GetVPMatrix(), PositionMat(pl.position) * RotationY(pl.rotation));
+		
         lightNode.Draw(camera.GetVPMatrix());
 
         // Draw the Enemies
@@ -367,22 +376,51 @@ ExampleApp::Run()
                         );
             }
         }
-
         map.Draw(camera.GetVPMatrix());
-
+		
         lightNode.Draw(camera.GetVPMatrix());
-        //get a consistent frame rate
-                auto elapsed = std::chrono::high_resolution_clock::now() - start;
-                long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
-                if (microseconds < 33333) // 30 fps
-                    usleep(33333 - microseconds);
-                
-        // printf("game loop delay (µs): %f\n", 1000000 / (float)(33333 - microseconds));
-        
+		
+        Debug::Render(camera.GetVPMatrix());
 		this->window->SwapBuffers();
 
-        
+        //get a consistent frame rate
+        auto elapsed = std::chrono::high_resolution_clock::now() - start;
+        long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+        this->scoreUI.UploadFPS(1000000/(float)microseconds);
 	}
 }
+void
+ExampleApp::RenderUI()
+{
+	if (this->window->IsOpen())
+	{
+        //ImGui::Begin();
+		/*
+		// Example for projecting text from worldspace into screenspace
+		Math::vec4 vec = Vector(0, 1, -2, 1);
+		// transform point into canonical view volume (normalized device coordinates)
+		Math::vec4 ndc = cam->viewProjection * vec;
+		// perspective divide
+		ndc /= Math::vec4(ndc.w);
 
+		if (ndc.z <= 1) // only render in front of camera
+		{
+			Math::vec2 cursorPos = { ndc.x, ndc.y };
+			// Move cursor pos into screenspace coordinates (0 -> screen width , etc.)
+			cursorPos += {1.0f, 1.0f};
+			cursorPos *= 0.5f;
+			cursorPos.y = 1.0f - cursorPos.y; // invert y axis
+			cursorPos.x *= ImGui::GetWindowWidth();
+			cursorPos.y *= ImGui::GetWindowHeight();
+			cursorPos.x -= ImGui::CalcTextSize(cmd.text.AsCharPtr()).x / 2.0f; // center text
+			ImGui::SetCursorPos({ cursorPos.x, cursorPos.y });
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1,0.4,0.3,1));
+			ImGui::TextUnformatted("Hello world");
+			ImGui::PopStyleColor();
+		}
+		*/
+
+		//ImGui::End();
+	}
+}
 } // namespace Example

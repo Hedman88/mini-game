@@ -9,7 +9,7 @@ class Map;
 struct Enemy : Entity
 {
     float moveSpeed = 0.1f;
-    float radius = 0.1f;
+    float radius = 0.01f;
     std::shared_ptr<GraphicsNode> graphicNode;
 public:
     void MoveTowardsPlayer(Player* player);

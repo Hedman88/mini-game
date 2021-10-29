@@ -11,10 +11,12 @@ class Tile
     std::shared_ptr<GraphicsNode> gNode;
     int width, height;
     bool walkable;
-    std::vector<Enemy> enemiesOnTile;
+    std::vector<int> enemiesOnTileIndex;
+    bool debugMode = false;
 
     Tile(int coordX, int coordY, bool walkable);
-    void AddEnemy(Enemy enemy);
+    void AddEnemy(int enemyIndex);
+    int RemoveEnemy(int enemyIndex);
     void SetGNode(std::shared_ptr<GraphicsNode> gNode);
     int GetNeighbourIndex(int nr);
 };
@@ -22,6 +24,7 @@ class Tile
 class Map
 {
     std::shared_ptr<Tile> tiles[16*16];
+    bool debugMode = true;
 
   public:
     void GenerateMap(int maxRand, int wallShare);

@@ -104,7 +104,7 @@ void Vector::Normalize() {
 /// <param name="b"></param>
 /// <returns>the resulting vector.</returns>
 inline float Dot(Vector a, Vector b) {
-	return a.x* b.x + a.y * b.y + a.z * b.z;
+	return a.x * b.x + a.y * b.y + a.z * b.z;
 }
 inline float Dot4(Vector a, Vector b) {
 	return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;

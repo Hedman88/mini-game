@@ -49,6 +49,7 @@ void Score::UploadFPS(float fps){
 
 void Score::SaveScore(){
     if(this->highScore < this->score){
+        std::cout << "SAVING SCORE" << std::endl;
         this->highScore = this->score;
         std::fstream saveFile("high_score.txt", std::fstream::in | std::fstream::out | std::fstream::trunc);
         saveFile << this->highScore;
@@ -60,14 +61,16 @@ void Score::LoadScore(){
     std::ifstream saveFile("high_score.txt");
     std::string line;
     getline(saveFile, line);
-    std::cout << line << std::endl;
-    std::cout << "WHAT IS GOING ON HERE?!" << std::endl;
     try{
         this->highScore = std::stoi(line);
     }catch(...){
         std::cout << "Failed to load, presumably first time loading" << std::endl;
     }
     saveFile.close();
+}
+
+void Score::SetGameOverScreen(bool activated){
+    dead = activated;
 }
 
 void Score::ToggleGameOverScreen(){

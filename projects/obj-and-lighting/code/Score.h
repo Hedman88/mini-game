@@ -15,6 +15,7 @@ class Score
     void UploadFPS(float fps);
     void SaveScore();
     void LoadScore();
+    void SetGameOverScreen(bool activated);
     void ToggleGameOverScreen();
     bool GetDead();
 };

@@ -223,6 +223,8 @@ ExampleApp::Run()
         enemies[i].graphicNode->SetMR(MeshResource::LoadObj(objPath));
         enemies[i].graphicNode->InitNode("", "", texturePath);
         enemies[i].graphicNode->SetSR(gNode.GetSR());
+        enemies[i].ID = i;
+        enemies[i].score = &scoreUI;
     }
 
 	while (this->window->IsOpen())
@@ -242,16 +244,8 @@ ExampleApp::Run()
                 // firing at enemy
                 pl.Shoot(&map, &enemies);
             }
-            //left is -1
-            //up is -1
-            //down is 1
-            //right is 1
-			
-            
 
             //check if the axis input is significant
-            
-
             //right
             if ((state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] > CONTROLLER_DEADZONE &&
                 map.GetTile(int(pl.position.x + pl.radius / 2), int(pl.position.z))->walkable))
@@ -297,29 +291,14 @@ ExampleApp::Run()
         
         for (size_t i = 0; i < enemies.size(); i++)
         {
+            if(enemies[i].dead) continue;
             if ((pl.position - enemies[i].position).Length() < pl.radius)
             {
-                scoreUI.ToggleGameOverScreen();
+                scoreUI.SetGameOverScreen(true);
             }
             else
             {
-                // enemies[0].Update(pl);
-                
-                if (pl.position.x - enemies[i].position.x > 0.f && // player is right of the enemy, so the enemies attempts to move right
-                map.GetTile(int(enemies[i].position.x + enemies[i].radius / 2), int(enemies[i].position.z))->walkable)
-                    enemies[i].UpdateX(pl);
-                
-                if (pl.position.x - enemies[i].position.x < 0.f && // player is left of the enemy, so the enemies attempts to move left
-                map.GetTile(int(enemies[i].position.x - enemies[i].radius), int(enemies[i].position.z))->walkable)
-                    enemies[i].UpdateX(pl);
-
-                if (pl.position.z - enemies[i].position.z > 0.f && // player is under of the enemy, so the enemies must move up
-                map.GetTile(int(enemies[i].position.x), int(enemies[i].position.z + enemies[i].radius / 2))->walkable)
-                    enemies[i].UpdateZ(pl);
-                
-                if (pl.position.z - enemies[i].position.z < 0.f && // player is over of the enemy, so the enemies must move down
-                map.GetTile(int(enemies[i].position.x), int(enemies[i].position.z - enemies[i].radius))->walkable)
-                    enemies[i].UpdateZ(pl);
+                enemies[i].Update(pl, &map);
             }
             if (!scoreUI.GetDead() && enemies.size() <= 0)
             {
@@ -343,6 +322,7 @@ ExampleApp::Run()
         // Draw the Enemies
         for (size_t i = 0; i < enemies.size(); i++)
         {
+            if(enemies[i].dead) continue;
 			if (float(pl.position.z - enemies[i].position.z) > 0.f)
             {
                 enemies[i].graphicNode->Draw(
@@ -372,8 +352,8 @@ ExampleApp::Run()
         }
 
         map.Draw(camera.GetVPMatrix());
-		std::cout << pl.position.x << " " << pl.position.y << " " << pl.position.z << std::endl;
-        std::cout << camera.GetPos().x << " " << camera.GetPos().y << " " << camera.GetPos().z << std::endl;
+		//std::cout << pl.position.x << " " << pl.position.y << " " << pl.position.z << std::endl;
+        //std::cout << camera.GetPos().x << " " << camera.GetPos().y << " " << camera.GetPos().z << std::endl;
         lightNode.SetPos(pl.position);
         
         lightNode.GiveLight(camera.GetPos());

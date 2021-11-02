@@ -18,4 +18,5 @@ class Score
     void SetGameOverScreen(bool activated);
     void ToggleGameOverScreen();
     bool GetDead();
+    void Reset();
 };

@@ -95,3 +95,7 @@ void Map::Draw(Matrix cameraVPMatrix){
 std::shared_ptr<Tile> Map::GetTile(int coordX, int coordZ){
     return this->tiles[coordX + 16 * coordZ];
 }
+
+void Map::ToggleDebugMode(){
+    this->debugMode = !this->debugMode;
+}

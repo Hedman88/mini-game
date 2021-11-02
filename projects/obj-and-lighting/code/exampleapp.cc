@@ -32,7 +32,6 @@
 #include "entity.h"
 #include "enemy.h"
 #include "player.h"
-#include "Map.h"
 #include "Ray.h"
 
 using namespace Display;
@@ -97,6 +96,9 @@ ExampleApp::Open()
             this->ePressed = true;
         }else if(key == GLFW_KEY_E && action == GLFW_RELEASE){
             this->ePressed = false;
+        }
+        if(key == GLFW_KEY_B && action == GLFW_PRESS){
+            map.ToggleDebugMode();
         }
 	});
     window->SetMousePressFunction([this](int32 button, int32 action, int32 mods){
@@ -168,6 +170,7 @@ ExampleApp::Run()
 	glDepthFunc(GL_LEQUAL);
 	glEnable(GL_DEPTH_TEST);
 
+    // Player
     const char* vsPath = "engine/render/VertexShader.ascii";
     const char* psPath = "engine/render/PixelShader.ascii";
     const char* texturePath = "assets/textures/grey.png";
@@ -175,19 +178,23 @@ ExampleApp::Run()
     GraphicsNode gNode(objPath);
     gNode.InitNode(vsPath, psPath, texturePath);
 
+    // Map and tiles
     const char* roadTexture = "assets/kenney_retroUrbanKit/Models/OBJ_format/Textures/grass.png";
     const char* wallTexture = "assets/kenney_retroUrbanKit/Models/OBJ_format/Textures/wall.png";
-    
-    Map map;
     map.GenerateMap(10, 2);
     map.InitTiles(vsPath, psPath, roadTexture, wallTexture);
     
     
+    // Lights
     const char* lvsPath = "engine/render/PointLightVS.ascii";
     const char* lpsPath = "engine/render/PointLightPS.ascii";
     PointLightNode lightNode(Vector(0,1,0), Vector(1,1,1,1), 1);
     lightNode.InitNode(lvsPath, lpsPath);
     lightNode.SetSharedShader(gNode.GetSR());
+
+    // Enemies
+    std::shared_ptr<GraphicsNode> gNodeEnemy = std::make_shared<GraphicsNode>(objPath);
+    gNodeEnemy->InitNode(vsPath, psPath, texturePath);
 
 
 	int width, height;
@@ -202,27 +209,28 @@ ExampleApp::Run()
     window->GetSize(windowWidth, windowHeight);
 
     Player pl;
-    pl.position = Vector(0,0,0,1);
+    pl.position = Vector(8,0,8,1);
     pl.radius = 0.2f;
     pl.gNode = &gNode;
-    for (size_t i = 0; i < 16 * 16; i++)
-    {
-        // if (map.GetTile(i % 16, i / 16)->Walkable)
-        map.GetTile(i % 16, i / 16)->gNode->SetSR(pl.gNode->GetSR());
+    //for (size_t i = 0; i < 16 * 16; i++)
+    //{
+    //    // if (map.GetTile(i % 16, i / 16)->Walkable)
+    //    map.GetTile(i % 16, i / 16)->gNode->SetSR(pl.gNode->GetSR());
+    //}
+    for(int y = 0; y < 16; y++){
+        for(int x = 0; x < 16; x++){
+            map.GetTile(x, y)->gNode->SetSR(pl.gNode->GetSR());
+        }
     }
 
     const float CONTROLLER_DEADZONE = 0.1f;
 
     unsigned int waves = 1;
     std::vector<Enemy> enemies;
-
     Enemy::SpawnEnemies(&enemies, &map, waves, 16, 16);
-
     for (size_t i = 0; i < enemies.size(); i++)
     {
-        enemies[i].graphicNode->SetMR(MeshResource::LoadObj(objPath));
-        enemies[i].graphicNode->InitNode("", "", texturePath);
-        enemies[i].graphicNode->SetSR(gNode.GetSR());
+        enemies[i].SetGNode(gNodeEnemy);
         enemies[i].ID = i;
         enemies[i].score = &scoreUI;
     }
@@ -239,7 +247,11 @@ ExampleApp::Run()
             {
                 this->window->Close();
             }
-            if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] > -0.5f)
+            if (state.buttons[GLFW_GAMEPAD_BUTTON_BACK])
+            {
+                Reset(&pl, &waves, &enemies, gNodeEnemy, &map, &scoreUI);
+            }
+            if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] > -0.5f && !scoreUI.GetDead())
             {
                 // firing at enemy
                 pl.Shoot(&map, &enemies);
@@ -248,33 +260,33 @@ ExampleApp::Run()
             //check if the axis input is significant
             //right
             if ((state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] > CONTROLLER_DEADZONE &&
-                map.GetTile(int(pl.position.x + pl.radius / 2), int(pl.position.z))->walkable))
+                map.GetTile(int(pl.position.x + pl.radius / 2), int(pl.position.z))->walkable) && !scoreUI.GetDead())
             {   
                 pl.position.x += state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] * pl.moveSpeed;
             }
 
             //left
             if ((state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] < -CONTROLLER_DEADZONE &&
-                map.GetTile(int(pl.position.x - pl.radius), int(pl.position.z))->walkable))
+                map.GetTile(int(pl.position.x - pl.radius), int(pl.position.z))->walkable) && !scoreUI.GetDead())
             {
                 pl.position.x += state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] * pl.moveSpeed;
             }
 
             // down
             if ((state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] > CONTROLLER_DEADZONE &&
-                map.GetTile(int(pl.position.x), int(pl.position.z + pl.radius / 2))->walkable))
+                map.GetTile(int(pl.position.x), int(pl.position.z + pl.radius / 2))->walkable) && !scoreUI.GetDead())
             {   
                 pl.position.z += state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] * pl.moveSpeed;
             }
             
             //up
             if ((state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] < -CONTROLLER_DEADZONE &&
-                map.GetTile(int(pl.position.x), int(pl.position.z - pl.radius))->walkable))
+                map.GetTile(int(pl.position.x), int(pl.position.z - pl.radius))->walkable) && !scoreUI.GetDead())
             {
                 pl.position.z += state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] * pl.moveSpeed;
             }
 
-            if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X] != 0.f)
+            if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X] != 0.f && !scoreUI.GetDead())
             {
                 if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y] > 0.f){
                     pl.aimDir = Vector(state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X], 0, state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y]);
@@ -284,14 +296,25 @@ ExampleApp::Run()
                     pl.rotation = atanf(pl.aimDir.x / pl.aimDir.z) - M_PI;
                 }
             }
-
-            // map.GetTile((int)pl.position.x, (int)pl.position.z);
-            // printf("tilePos: (%f, %f)\n", pl.position.x, pl.position.z);
         }
         
         for (size_t i = 0; i < enemies.size(); i++)
         {
-            if(enemies[i].dead) continue;
+            if (!scoreUI.GetDead() && enemies.size() <= GetDeadAmount())
+            {
+                waves++;
+                Enemy::SpawnEnemies(&enemies, &map, waves, 16, 16);
+                for (size_t i = 0; i < enemies.size(); i++)
+                {
+                    enemies[i].SetGNode(gNodeEnemy);
+                    enemies[i].ID = i;
+                    enemies[i].score = &scoreUI;
+                    SetDeadAmount();
+                }
+            }
+            if(enemies[i].dead){
+                continue;
+            }            
             if ((pl.position - enemies[i].position).Length() < pl.radius)
             {
                 scoreUI.SetGameOverScreen(true);
@@ -300,20 +323,18 @@ ExampleApp::Run()
             {
                 enemies[i].Update(pl, &map);
             }
-            if (!scoreUI.GetDead() && enemies.size() <= 0)
-            {
-                waves++;
-                Enemy::SpawnEnemies(&enemies, &map, waves, 16, 16);
-            }
         }
         
         camera.SetPos(pl.position * -1.f);
 
-        Vector moveInput(this->right - this->left, 0, this->down - this->up);
-        if (moveInput.Length())
-            moveInput.Normalize();
-        moveInput = moveInput * pl.moveSpeed;
-        pl.position = pl.position + moveInput;
+        // This is optional keyboard movement
+        if(!scoreUI.GetDead()){
+            Vector moveInput(this->right - this->left, 0, this->down - this->up);
+            if (moveInput.Length())
+                moveInput.Normalize();
+            moveInput = moveInput * pl.moveSpeed;
+            pl.position = pl.position + moveInput;
+        }
 
         // The light node sends up its values to the meshes shader program
         
@@ -352,12 +373,15 @@ ExampleApp::Run()
         }
 
         map.Draw(camera.GetVPMatrix());
-		//std::cout << pl.position.x << " " << pl.position.y << " " << pl.position.z << std::endl;
-        //std::cout << camera.GetPos().x << " " << camera.GetPos().y << " " << camera.GetPos().z << std::endl;
-        lightNode.SetPos(pl.position);
-        
-        lightNode.GiveLight(camera.GetPos());
-        lightNode.Draw(camera.GetVPMatrix());
+        lightNode.SetPos(Vector(pl.position.x, 1, pl.position.z));
+        // Generating some light for shots
+        if(pl.shotFired){
+            lightNode.GiveLight(camera.GetPos());
+            pl.shotFired = false;
+        }else{
+            lightNode.StopGivingLight();
+        }
+        //lightNode.Draw(camera.GetVPMatrix(), pl.rotation);
 		
         Debug::Render(camera.GetVPMatrix());
 		this->window->SwapBuffers();
@@ -367,6 +391,38 @@ ExampleApp::Run()
         long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
         this->scoreUI.UploadFPS(1000000/(float)microseconds);
 	}
+}
+void
+ExampleApp::Reset(Player* pl, unsigned int* waves, std::vector<Enemy>* enemies, std::shared_ptr<GraphicsNode> gNodeEnemy, Map* map, Score* scoreUI)
+{
+    // Reset player
+    pl->position = Vector(8,0,8,1);
+
+    // Reset enemies and waves
+    *waves = 1;
+    Enemy::SpawnEnemies(enemies, map, *waves, 16, 16);
+    for (size_t i = 0; i < enemies->size(); i++)
+    {
+        (*enemies)[i].SetGNode(gNodeEnemy);
+        (*enemies)[i].ID = i;
+        (*enemies)[i].score = scoreUI;
+    }
+    
+    // Reset map
+    const char* vsPath = "engine/render/VertexShader.ascii";
+    const char* psPath = "engine/render/PixelShader.ascii";
+    const char* roadTexture = "assets/kenney_retroUrbanKit/Models/OBJ_format/Textures/grass.png";
+    const char* wallTexture = "assets/kenney_retroUrbanKit/Models/OBJ_format/Textures/wall.png";
+    map->GenerateMap(10, 2);
+    map->InitTiles(vsPath, psPath, roadTexture, wallTexture);
+    for(int y = 0; y < 16; y++){
+        for(int x = 0; x < 16; x++){
+            map->GetTile(x, y)->gNode->SetSR(pl->gNode->GetSR());
+        }
+    }
+
+    // Reset score
+    scoreUI->Reset();
 }
 void
 ExampleApp::RenderUI()

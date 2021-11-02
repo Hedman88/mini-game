@@ -9,6 +9,7 @@
 #include "core/app.h"
 #include "render/window.h"
 #include "Score.h"
+#include "Map.h"
 
 namespace Example
 {
@@ -26,6 +27,8 @@ public:
 	void Run();
 
     void RenderUI();
+
+    void Reset(Player* pl, unsigned int* waves, std::vector<Enemy>* enemies, std::shared_ptr<GraphicsNode> gNodeEnemy, Map* map, Score* scoreUI);
 private:
 
 	GLuint program;
@@ -34,6 +37,7 @@ private:
 	GLuint triangle;
 	Display::Window* window;
     Score scoreUI;
+    Map map;
     bool LMBPressed = false;
     bool up = false;
     bool down = false;

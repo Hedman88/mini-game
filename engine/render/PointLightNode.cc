@@ -12,12 +12,12 @@ PointLightNode::PointLightNode(Vector position, Vector colorRGBA, float strength
 
 void PointLightNode::SetPos(const Vector posIn)
 {
-    pos = posIn;
+    this->pos = posIn;
 }
 
 Vector PointLightNode::GetPos()
 {
-    return pos;
+    return this->pos;
 }
 
 void PointLightNode::InitNode(const char* vShaderFile, const char* pShaderFile){
@@ -30,9 +30,12 @@ void PointLightNode::GiveLight(Vector cameraPos){
     this->sharedShader->SetVector4("lightColor", this->color);
     this->sharedShader->SetFloat("lightIntensity", this->intensity);
 }
-void PointLightNode::Draw(Matrix cameraVPMatrix){
+void PointLightNode::StopGivingLight(){
+    this->sharedShader->SetFloat("lightIntensity", 0);
+}
+void PointLightNode::Draw(Matrix cameraVPMatrix, float rotation){
     this->sr->ActivateShaders();
-    this->sr->SetMatrix("matrix", (cameraVPMatrix * PositionMat(this->pos)).data2);
+    this->sr->SetMatrix("matrix", (cameraVPMatrix * PositionMat(this->pos) * RotationY(rotation)).data2);
     this->mr->Render();
 }
 

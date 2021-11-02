@@ -8,9 +8,11 @@
 class Score;
 class Map;
 class Tile;
+int GetDeadAmount();
+void SetDeadAmount(int amount = 0);
 struct Enemy : Entity
 {
-    float moveSpeed = 0.01f;
+    float moveSpeed = 0.03f;
     float radius = 0.1f;
     std::shared_ptr<GraphicsNode> graphicNode;
     std::vector<std::shared_ptr<Tile>> currentTiles;
@@ -28,6 +30,7 @@ struct Enemy : Entity
     void UpdateZ(Player player);
     void UpdateTiles(Map* map);
     bool CheckIfTilesContain(std::shared_ptr<Tile> tile);
+    void SetGNode(std::shared_ptr<GraphicsNode> gNode);
     Enemy(Vector position);
     ~Enemy();
 };

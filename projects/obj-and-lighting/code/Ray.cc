@@ -11,7 +11,7 @@ Ray::Ray(Vector position, Vector direction, int range){
 Ray::Ray(Vector position, Vector direction, int range, Map* map, std::vector<Enemy>* enemies){
     direction.Normalize();
     Vector endPos = position + (direction * range);
-    Debug::DrawLine(position, endPos, Vector(0,1,0));
+    Debug::DrawLine(position, endPos, Vector(0.9,0.3,0.3));
     Vector currentPos = position;
     while(range > (position - currentPos).Length()){
         std::shared_ptr<Tile> tile = map->GetTile((int)currentPos.x, (int)currentPos.z);
@@ -45,7 +45,7 @@ bool Ray::CheckEnemyIntersection(Vector position, Vector direction, std::shared_
         float cosAngle = Dot(hypNormalized, kat);
         float angle = acos(cosAngle);
         Vector oKat = hyp * sin(angle);
-        if(oKat.Length() < (enemy->position.Length() + enemy->radius)){
+        if(oKat.Length() < enemy->radius){
             enemy->Kill();
             return true;
         }

@@ -9,13 +9,22 @@ void Score::Render(){
 
 	ImGui::SetNextWindowPos({ 0,0 }, ImGuiCond_Always);
 	ImGui::SetNextWindowSize(ImGui::GetMainViewport()->Size, ImGuiCond_Always);
-	ImGui::Begin("invis_wnd", &show,
-		ImGuiWindowFlags_NoBackground |
-		ImGuiWindowFlags_NoMove |
-		ImGuiWindowFlags_NoDecoration |
-		ImGuiWindowFlags_NoInputs |
-		ImGuiWindowFlags_NoNav
-		);
+    if(dead){
+	    ImGui::Begin("invis_wnd", &show,
+	    	ImGuiWindowFlags_NoMove |
+	    	ImGuiWindowFlags_NoDecoration |
+	    	ImGuiWindowFlags_NoInputs |
+	    	ImGuiWindowFlags_NoNav
+	    	);
+    }else{
+	    ImGui::Begin("invis_wnd", &show,
+		    ImGuiWindowFlags_NoBackground |
+		    ImGuiWindowFlags_NoMove |
+		    ImGuiWindowFlags_NoDecoration |
+		    ImGuiWindowFlags_NoInputs |
+		    ImGuiWindowFlags_NoNav
+		    );
+    }
 
 	static float x = -2.0f;
 	x += 0.005f;
@@ -80,4 +89,9 @@ void Score::ToggleGameOverScreen(){
 bool Score::GetDead()
 {
     return dead;
+}
+
+void Score::Reset(){
+    this->score = 0;
+    SetGameOverScreen(false);
 }

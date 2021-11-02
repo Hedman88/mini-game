@@ -20,7 +20,8 @@ class PointLightNode
     PointLightNode(Vector position, Vector colorRGBA, float strength);
     void InitNode(const char* vShaderFile, const char* pShaderFile);
     void GiveLight(Vector cameraPos);
-    void Draw(Matrix cameraVPMatrix);
+    void StopGivingLight();
+    void Draw(Matrix cameraVPMatrix, float rotation);
 
     std::shared_ptr<MeshResource> GetMR();
     void SetMR(std::shared_ptr<MeshResource> mr);

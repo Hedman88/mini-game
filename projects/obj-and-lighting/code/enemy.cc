@@ -4,10 +4,18 @@
 #include <ctime>
 #include <cmath>
 
+int deadAmount = 0;
+int GetDeadAmount(){
+    return deadAmount;
+}
+void SetDeadAmount(int amount){
+    deadAmount = amount;
+}
+
 Enemy::Enemy(Vector position)
 {
     this->position = position;
-    this->graphicNode = std::make_shared<GraphicsNode>();
+    //this->graphicNode = std::make_shared<GraphicsNode>();
 }
 
 Enemy::~Enemy()
@@ -30,15 +38,15 @@ void Enemy::SpawnEnemies(std::vector<Enemy>* enemies, Map* map, unsigned int wav
     {
         return;
     }
+    enemies->clear();
     if (enemies->size() > 0)
     {
         return;
     }
 
-    enemies->clear();
     srand((unsigned int)time(0));
 
-    for (size_t i = 0; i < 5 + (int)(waves * 6.09f); i++)
+    for (size_t i = 0; i < 0 + (int)(waves * 6.09f); i++)
     {
         int x, z;
         do
@@ -87,7 +95,7 @@ void Enemy::Kill(){
         currentTiles[i]->RemoveEnemy(ID);
     }
     currentTiles.clear();
-    delete(this);
+    deadAmount++;
 }
 
 void Enemy::UpdateX(Player player)
@@ -224,4 +232,8 @@ bool Enemy::CheckIfTilesContain(std::shared_ptr<Tile> tile){
         }
     }
     return false;
+}
+
+void Enemy::SetGNode(std::shared_ptr<GraphicsNode> gNode){
+    this->graphicNode = gNode;
 }

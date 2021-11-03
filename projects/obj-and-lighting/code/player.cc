@@ -3,6 +3,7 @@
 #include "Map.h"
 #include "enemy.h"
 #include "Ray.h"
+#include "GLFW/glfw3.h"
 #include <chrono>
 
 Player::Player()
@@ -17,11 +18,10 @@ Player::~Player()
 }
 
 void Player::Shoot(Map* map, std::vector<Enemy>* enemies){
-    auto start = std::chrono::system_clock::now().time_since_epoch();
-    long long milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(start).count();
-    if(shootingTime < milliseconds){
+    double start = glfwGetTime() * 1000.0f;
+    if(shootingTime < start){
         shotFired = true;
         Ray ray(position, aimDir, range, map, enemies);
-        shootingTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() + shootingRate;
+        shootingTime = start + shootingRate;
     }
 }

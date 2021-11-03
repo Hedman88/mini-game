@@ -13,7 +13,7 @@ struct Player : Entity
     GraphicsNode* gNode;
     Vector aimDir;
     float range = 10.f;
-    const long int shootingRate = 50; // coolDown effect
+    const long int shootingRate = 500; // coolDown effect
     long int shootingTime = -1; // in seconds currently
 public:
     bool shotFired = false;

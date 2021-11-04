@@ -242,62 +242,82 @@ ExampleApp::Run()
 		this->window->Update();
 
         GLFWgamepadstate state;
-        if(glfwGetGamepadState(GLFW_JOYSTICK_1, &state)){
-            if (state.buttons[GLFW_GAMEPAD_BUTTON_START])
-            {
-                this->window->Close();
-            }
-            if (state.buttons[GLFW_GAMEPAD_BUTTON_BACK])
-            {
-                Reset(&pl, &waves, &enemies, gNodeEnemy, &map, &scoreUI);
-            }
-            if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] > -0.5f && !scoreUI.GetDead())
-            {
-                // firing at enemy
-                pl.Shoot(&map, &enemies);
-            }
+        if (!scoreUI.GetDead())
+        {
+            if(glfwGetGamepadState(GLFW_JOYSTICK_1, &state)){
+                if (state.buttons[GLFW_GAMEPAD_BUTTON_START])
+                {
+                    this->window->Close();
+                }
+                if (state.buttons[GLFW_GAMEPAD_BUTTON_BACK])
+                {
+                    Reset(&pl, &waves, &enemies, gNodeEnemy, &map, &scoreUI);
+                }
+                if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] > -0.5f && !scoreUI.GetDead())
+                {
+                    // firing at enemy
+                    pl.Shoot(&map, &enemies);
+                }
 
-            //check if the axis input is significant
-            //right
-            if ((state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] > CONTROLLER_DEADZONE &&
-                map.GetTile(int(pl.position.x + pl.radius / 2), int(pl.position.z))->walkable) && !scoreUI.GetDead())
+                //check if the axis input is significant
+                //right
+                if ((state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] > CONTROLLER_DEADZONE &&
+                    map.GetTile(int(pl.position.x + pl.radius / 2), int(pl.position.z))->walkable) && !scoreUI.GetDead())
+                {   
             {   
-                pl.position.x += state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] * pl.moveSpeed;
-            }
-
-            //left
-            if ((state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] < -CONTROLLER_DEADZONE &&
-                map.GetTile(int(pl.position.x - pl.radius), int(pl.position.z))->walkable) && !scoreUI.GetDead())
-            {
-                pl.position.x += state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] * pl.moveSpeed;
-            }
-
-            // down
-            if ((state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] > CONTROLLER_DEADZONE &&
-                map.GetTile(int(pl.position.x), int(pl.position.z + pl.radius / 2))->walkable) && !scoreUI.GetDead())
+                {   
             {   
-                pl.position.z += state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] * pl.moveSpeed;
-            }
+                {   
+                    pl.position.x += state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] * pl.moveSpeed;
+                }
+
+                //left
+                if ((state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] < -CONTROLLER_DEADZONE &&
+                    map.GetTile(int(pl.position.x - pl.radius), int(pl.position.z))->walkable) && !scoreUI.GetDead())
+                {
+                    pl.position.x += state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] * pl.moveSpeed;
+                }
+
+                // down
+                if ((state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] > CONTROLLER_DEADZONE &&
+                    map.GetTile(int(pl.position.x), int(pl.position.z + pl.radius / 2))->walkable) && !scoreUI.GetDead())
+                {   
+            {   
+                {   
+            {   
+                {   
+                    pl.position.z += state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] * pl.moveSpeed;
+                }
             
-            //up
-            if ((state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] < -CONTROLLER_DEADZONE &&
-                map.GetTile(int(pl.position.x), int(pl.position.z - pl.radius))->walkable) && !scoreUI.GetDead())
-            {
-                pl.position.z += state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] * pl.moveSpeed;
-            }
+                //up
+                if ((state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] < -CONTROLLER_DEADZONE &&
+                    map.GetTile(int(pl.position.x), int(pl.position.z - pl.radius))->walkable) && !scoreUI.GetDead())
+                {
+                    pl.position.z += state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] * pl.moveSpeed;
+                }
 
-            if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X] != 0.f && !scoreUI.GetDead())
-            {
-                if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y] > 0.f){
-                    pl.aimDir = Vector(state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X], 0, state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y]);
-                    pl.rotation = atanf(pl.aimDir.x / pl.aimDir.z);
-                }else if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y] < -0.f){
-                    pl.aimDir = Vector(state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X], 0, state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y]);
-                    pl.rotation = atanf(pl.aimDir.x / pl.aimDir.z) - M_PI;
+                if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X] != 0.f && !scoreUI.GetDead())
+                {
+                    if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y] > 0.f){
+                        pl.aimDir = Vector(state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X], 0, state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y]);
+                        pl.rotation = atanf(pl.aimDir.x / pl.aimDir.z);
+                    }else if (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y] < -0.f){
+                        pl.aimDir = Vector(state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X], 0, state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y]);
+                        pl.rotation = atanf(pl.aimDir.x / pl.aimDir.z) - M_PI;
+                    }
                 }
             }
-        }
         
+            else  {
+                Vector moveInput(this->right - this->left, 0, this->down - this->up);
+                if (moveInput.Length())
+                    moveInput.Normalize();
+                moveInput = moveInput * pl.moveSpeed;
+                pl.position = pl.position + moveInput;
+            }
+        }
+
+
         for (size_t i = 0; i < enemies.size(); i++)
         {
             if (!scoreUI.GetDead() && enemies.size() <= GetDeadAmount())
@@ -327,14 +347,6 @@ ExampleApp::Run()
         
         camera.SetPos(pl.position * -1.f);
 
-        // This is optional keyboard movement
-        if(!scoreUI.GetDead()){
-            Vector moveInput(this->right - this->left, 0, this->down - this->up);
-            if (moveInput.Length())
-                moveInput.Normalize();
-            moveInput = moveInput * pl.moveSpeed;
-            pl.position = pl.position + moveInput;
-        }
 
         // The light node sends up its values to the meshes shader program
         
@@ -387,7 +399,7 @@ ExampleApp::Run()
 		this->window->SwapBuffers();
 
         // Calculate framerate
-        auto elapsed = std::chrono::high_resolution_clock::now() - start;
+        std::chrono::nanoseconds elapsed = std::chrono::high_resolution_clock::now() - start;
         long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
         this->scoreUI.UploadFPS(1000000/(float)microseconds);
 	}

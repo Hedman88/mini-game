@@ -32,9 +32,13 @@ Enemy::~Enemy()
 }
 
 // spawn waves onto map
-void Enemy::SpawnEnemies(std::vector<Enemy>* enemies, Map* map, unsigned int waves, const unsigned int width, const unsigned int height)
+void Enemy::SpawnEnemies(std::vector<Enemy>* enemies, Map* map, unsigned int waves, Player* player, const unsigned int width, const unsigned int height)
 {
     if (enemies == nullptr)
+    {
+        return;
+    }
+    if (player == nullptr)
     {
         return;
     }
@@ -44,15 +48,18 @@ void Enemy::SpawnEnemies(std::vector<Enemy>* enemies, Map* map, unsigned int wav
         return;
     }
 
-    srand((unsigned int)time(0));
+    srand((unsigned int)time(NULL));
 
     for (size_t i = 0; i < 0 + (int)(waves * 6.09f); i++)
     {
         int x, z;
+        int the_tangent_of_the_cameras_fov_divided_by_the_height_given_as_a_constant_in_the_cameras_projection_matrix = 5;
         do
         {
             x = rand() % width, z = rand() % height;
-            if (map->GetTile(x, z)->walkable) break;
+            if (map->GetTile(x, z)->walkable &&
+            abs(x - player->position.x) > the_tangent_of_the_cameras_fov_divided_by_the_height_given_as_a_constant_in_the_cameras_projection_matrix &&
+            abs(z - player->position.z) > the_tangent_of_the_cameras_fov_divided_by_the_height_given_as_a_constant_in_the_cameras_projection_matrix) break;
         }while(true);
         Vector position = Vector(x, 0, z);
         Enemy en(position);

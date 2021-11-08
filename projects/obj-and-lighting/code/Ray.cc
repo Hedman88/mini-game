@@ -11,7 +11,6 @@ Ray::Ray(Vector position, Vector direction, int range){
 Ray::Ray(Vector position, Vector direction, int range, Map* map, std::vector<Enemy>* enemies){
     direction.Normalize();
     Vector endPos = position + (direction * range);
-    Debug::DrawLine(position, endPos, Vector(0.9,0.3,0.3));
     Vector currentPos = position;
     while(range > (position - currentPos).Length()){
         std::shared_ptr<Tile> tile = map->GetTile((int)currentPos.x, (int)currentPos.z);
@@ -20,10 +19,14 @@ Ray::Ray(Vector position, Vector direction, int range, Map* map, std::vector<Ene
         }
         tile->debugMode = true;
         if(LookForEnemies(tile)){
-            CheckEnemyIntersection(position, direction, tile, enemies);
+            if(CheckEnemyIntersection(position, direction, tile, enemies)){
+                break;
+            }
+            
         }
         currentPos = currentPos + direction*0.1f;
     }
+    Debug::DrawLine(position, currentPos, Vector(0.9,0.3,0.3));
 }
 
 bool Ray::LookForEnemies(std::shared_ptr<Tile> tile){

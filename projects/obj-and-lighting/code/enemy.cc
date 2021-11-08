@@ -32,13 +32,9 @@ Enemy::~Enemy()
 }
 
 // spawn waves onto map
-void Enemy::SpawnEnemies(std::vector<Enemy>* enemies, Map* map, unsigned int waves, Player* player, const unsigned int width, const unsigned int height)
+void Enemy::SpawnEnemies(std::vector<Enemy>* enemies, Map* map, unsigned int waves, const Vector playerPosition, const unsigned int width, const unsigned int height)
 {
     if (enemies == nullptr)
-    {
-        return;
-    }
-    if (player == nullptr)
     {
         return;
     }
@@ -53,14 +49,23 @@ void Enemy::SpawnEnemies(std::vector<Enemy>* enemies, Map* map, unsigned int wav
     for (size_t i = 0; i < 0 + (int)(waves * 6.09f); i++)
     {
         int x, z;
+        // tan(FOV) = tilesOnScreenRadius / distanceInTilesFromGroundToCamera
+        // tilesOnScreenRadius = tan(FOV) * distanceInTilesFromGroundToCamera
         int the_tangent_of_the_cameras_fov_divided_by_the_height_given_as_a_constant_in_the_cameras_projection_matrix = 5;
         do
         {
             x = rand() % width, z = rand() % height;
+            //std::cout << std::abs(x - playerPosition.x) << " " << std::abs(z - playerPosition.z) << "(" << x << "," << z << ")";
             if (map->GetTile(x, z)->walkable &&
-            abs(x - player->position.x) > the_tangent_of_the_cameras_fov_divided_by_the_height_given_as_a_constant_in_the_cameras_projection_matrix &&
-            abs(z - player->position.z) > the_tangent_of_the_cameras_fov_divided_by_the_height_given_as_a_constant_in_the_cameras_projection_matrix) break;
+            std::abs(x - playerPosition.x) > the_tangent_of_the_cameras_fov_divided_by_the_height_given_as_a_constant_in_the_cameras_projection_matrix &&
+            std::abs(z - playerPosition.z) > the_tangent_of_the_cameras_fov_divided_by_the_height_given_as_a_constant_in_the_cameras_projection_matrix)
+            {
+                // std::cout << " succeeded!\n";
+                break;
+            }
+            // std::cout << " failed!\n";
         }while(true);
+        std::cin.get();
         Vector position = Vector(x, 0, z);
         Enemy en(position);
         enemies->push_back(en);

@@ -227,7 +227,7 @@ ExampleApp::Run()
 
     unsigned int waves = 1;
     std::vector<Enemy> enemies;
-    Enemy::SpawnEnemies(&enemies, &map, waves, 16, 16);
+    Enemy::SpawnEnemies(&enemies, &map, waves, pl.position, 16, 16);
     for (size_t i = 0; i < enemies.size(); i++)
     {
         enemies[i].SetGNode(gNodeEnemy);
@@ -264,10 +264,6 @@ ExampleApp::Run()
                 if ((state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] > CONTROLLER_DEADZONE &&
                     map.GetTile(int(pl.position.x + pl.radius / 2), int(pl.position.z))->walkable) && !scoreUI.GetDead())
                 {   
-            {   
-                {   
-            {   
-                {   
                     pl.position.x += state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] * pl.moveSpeed;
                 }
 
@@ -281,10 +277,6 @@ ExampleApp::Run()
                 // down
                 if ((state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] > CONTROLLER_DEADZONE &&
                     map.GetTile(int(pl.position.x), int(pl.position.z + pl.radius / 2))->walkable) && !scoreUI.GetDead())
-                {   
-            {   
-                {   
-            {   
                 {   
                     pl.position.z += state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] * pl.moveSpeed;
                 }
@@ -323,7 +315,7 @@ ExampleApp::Run()
             if (!scoreUI.GetDead() && enemies.size() <= GetDeadAmount())
             {
                 waves++;
-                Enemy::SpawnEnemies(&enemies, &map, waves, 16, 16);
+                Enemy::SpawnEnemies(&enemies, &map, waves, pl.position, 16, 16);
                 for (size_t i = 0; i < enemies.size(); i++)
                 {
                     enemies[i].SetGNode(gNodeEnemy);
@@ -412,7 +404,7 @@ ExampleApp::Reset(Player* pl, unsigned int* waves, std::vector<Enemy>* enemies, 
 
     // Reset enemies and waves
     *waves = 1;
-    Enemy::SpawnEnemies(enemies, map, *waves, 16, 16);
+    Enemy::SpawnEnemies(enemies, map, *waves, pl->position, 16, 16);
     for (size_t i = 0; i < enemies->size(); i++)
     {
         (*enemies)[i].SetGNode(gNodeEnemy);

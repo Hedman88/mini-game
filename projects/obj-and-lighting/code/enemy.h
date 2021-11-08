@@ -22,7 +22,7 @@ struct Enemy : Entity
     Score* score;
 
     void MoveTowardsPlayer(Player* player);
-    static void SpawnEnemies(std::vector<Enemy>* enemies, Map* map, unsigned int waves, Player* player, const unsigned int width, const unsigned int height);
+    static void SpawnEnemies(std::vector<Enemy>* enemies, Map* map, unsigned int waves, const Vector playerPosition, const unsigned int width, const unsigned int height);
 
     void Update(Player player, Map* map);
     void Kill();

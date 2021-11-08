@@ -55,17 +55,14 @@ void Enemy::SpawnEnemies(std::vector<Enemy>* enemies, Map* map, unsigned int wav
         do
         {
             x = rand() % width, z = rand() % height;
-            //std::cout << std::abs(x - playerPosition.x) << " " << std::abs(z - playerPosition.z) << "(" << x << "," << z << ")";
+            
             if (map->GetTile(x, z)->walkable &&
             std::abs(x - playerPosition.x) > the_tangent_of_the_cameras_fov_divided_by_the_height_given_as_a_constant_in_the_cameras_projection_matrix &&
             std::abs(z - playerPosition.z) > the_tangent_of_the_cameras_fov_divided_by_the_height_given_as_a_constant_in_the_cameras_projection_matrix)
             {
-                // std::cout << " succeeded!\n";
                 break;
             }
-            // std::cout << " failed!\n";
         }while(true);
-        std::cin.get();
         Vector position = Vector(x, 0, z);
         Enemy en(position);
         enemies->push_back(en);
